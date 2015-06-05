@@ -110,7 +110,7 @@ def wrap_controller_exception(func, func_server_error, func_client_error):
                 # correlation id
                 log_correlation_id = str(uuid.uuid4())
                 LOG.error(_LE("%(correlation_id)s:%(excp)s") %
-                             {'correlation_id': log_correlation_id,
+                          {'correlation_id': log_correlation_id,
                               'excp': str(excp)})
                 # raise a client error with an obfuscated message
                 func_server_error(log_correlation_id, http_error_code)
@@ -200,7 +200,7 @@ class CloudpulseException(Exception):
             LOG.exception(_LE('Exception in string format operation'))
             for name, value in kwargs.iteritems():
                 LOG.error(_LE("%(name)s: %(value)s") %
-                             {'name': name, 'value': value})
+                          {'name': name, 'value': value})
             try:
                 if CONF.fatal_exception_format_errors:
                     raise e

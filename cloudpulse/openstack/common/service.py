@@ -37,10 +37,8 @@ import eventlet
 from eventlet import event
 from oslo_config import cfg
 
-from cloudpulse.openstack.common._i18n import _LE
-from cloudpulse.openstack.common._i18n import _LI
-from cloudpulse.openstack.common._i18n import _LW
 from cloudpulse.openstack.common import eventlet_backdoor
+from cloudpulse.openstack.common._i18n import _LE, _LI, _LW
 from cloudpulse.openstack.common import systemd
 from cloudpulse.openstack.common import threadgroup
 
