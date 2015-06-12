@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2013 - Noorul Islam K M
+#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -11,9 +15,7 @@
 # under the License.
 
 import pbr.version
-import threading
 
-__version__ = pbr.version.VersionInfo('cloudpulse').version_string()
 
-#  Make a project global TLS trace storage repository
-TLS = threading.local()
+version_info = pbr.version.VersionInfo('cloudpulse')
+version_string = version_info.version_string
