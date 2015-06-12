@@ -28,12 +28,12 @@ from cloudpulse.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
 
-trust_opts = [
+topts = [
     cfg.ListOpt('trusts_delegated_roles',
                 default=['cloudpulse_assembly_update'],
                 help=_('Subset of roles to be delegated to cloudpulse.')),
 ]
-cfg.CONF.register_opts(trust_opts)
+cfg.CONF.register_opts(topts)
 cfg.CONF.import_opt('auth_uri', 'keystonemiddleware.auth_token',
                     group='keystone_authtoken')
 
