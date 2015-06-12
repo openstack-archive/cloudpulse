@@ -22,7 +22,7 @@ import six
 from cloudpulse.openstack.common._i18n import _, _LE, _LI
 
 
-periodic_opts = [
+popts = [
     cfg.BoolOpt('run_external_periodic_tasks',
                 default=True,
                 help='Some periodic tasks can be run in a separate process. '
@@ -30,7 +30,7 @@ periodic_opts = [
 ]
 
 CONF = cfg.CONF
-CONF.register_opts(periodic_opts)
+CONF.register_opts(popts)
 
 LOG = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ DEFAULT_INTERVAL = 60.0
 
 def list_opts():
     """Entry point for oslo-config-generator."""
-    return [(None, copy.deepcopy(periodic_opts))]
+    return [(None, copy.deepcopy(popts))]
 
 
 class InvalidPeriodicTaskArg(Exception):
