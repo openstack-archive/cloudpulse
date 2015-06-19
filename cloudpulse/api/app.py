@@ -18,6 +18,13 @@ from cloudpulse.api import config as api_config
 from cloudpulse.api import middleware
 
 # Register options for the service
+bind_opts = [
+    cfg.StrOpt('host', default='0.0.0.0',
+               help=('Address to bind the server.  Useful when '
+                     'selecting a particular network interface.')),
+    cfg.IntOpt('port', default='9999',
+               help=('The port on which the server will listen.')),
+]
 API_SERVICE_OPTS = [
     cfg.IntOpt('port',
                default=9511,
@@ -35,6 +42,7 @@ CONF = cfg.CONF
 opt_group = cfg.OptGroup(name='api',
                          title='Options for the cloudpulse-api service')
 CONF.register_group(opt_group)
+CONF.register_opts(bind_opts)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
 
 
