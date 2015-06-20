@@ -221,3 +221,15 @@ class Connection(api.Connection):
 
     def release_test_lock(self, test_uuid, conductor_id):
         pass
+
+
+def delete_old_tests(num_range, num_tests=cfg.CONF.database.max_db_entries):
+    alltests = _paginate_query(models.cpulse)
+    if len(alltests) < num_tests:
+        return
+    session = get_session()
+    removable = len(alltests) - num_tests
+    num_to_del = removable if (removable < (3 * num_range)) else 3 * num_range
+    with session.begin():
+        for i in range(0, num_to_del):
+            session.delete(alltests[i])

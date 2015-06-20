@@ -36,7 +36,11 @@ from cloudpulse.common import paths
 sql_opts = [
     cfg.StrOpt('mysql_engine',
                default='InnoDB',
-               help='MySQL engine to use.')
+               help='MySQL engine to use.'),
+    cfg.IntOpt('max_db_entries',
+               default=10,
+               help=('Maximum test result entries to be persisted ')),
+
 ]
 
 _DEFAULT_SQL_CONNECTION = ('sqlite:///' +
