@@ -62,6 +62,8 @@ class Cpulse(base.APIBase):
     result = wtypes.StringType(min_length=1, max_length=1024)
     """Result of this test"""
 
+    testtype = wtypes.StringType(min_length=1, max_length=255)
+
     def __init__(self, **kwargs):
         super(Cpulse, self).__init__()
 
@@ -77,7 +79,7 @@ class Cpulse(base.APIBase):
     def _convert_with_links(cpulse, url, expand=True):
         if not expand:
             cpulse.unset_fields_except(['uuid', 'name', 'state', 'id', 'result'
-                                        ])
+                                        'testtype'])
         return cpulse
 
     @classmethod
@@ -212,6 +214,7 @@ class cpulseController(rest.RestController):
         ncp = objects.Cpulse(context, **test_dict)
         ncp.cpulse_create_timeout = 0
         ncp.result = "NotYetRun"
+        ncp.testtype = "manual"
         res_test = pecan.request.rpcapi.test_create(ncp,
                                                     ncp.cpulse_create_timeout)
 

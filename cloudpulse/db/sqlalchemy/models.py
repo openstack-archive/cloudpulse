@@ -123,6 +123,7 @@ class cpulse(Base):
     name = Column(String(255))
     state = Column(String(255))
     result = Column(Text)
+    testtype = Column(String(255))
 
 
 class CpulseLock(Base):
