@@ -49,7 +49,8 @@ class Cpulse(base.CloudpulsePersistentObject, base.CloudpulseObject,
         'uuid': fields.UUIDField(nullable=True),
         'name': fields.StringField(nullable=True),
         'state': fields.StringField(nullable=True),
-        'result': fields.StringField(nullable=True)
+        'result': fields.StringField(nullable=True),
+        'testtype': fields.StringField(nullable=True)
     }
 
     @staticmethod
