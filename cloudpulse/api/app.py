@@ -16,6 +16,10 @@ import pecan
 from cloudpulse.api import auth
 from cloudpulse.api import config as api_config
 from cloudpulse.api import middleware
+from cloudpulse.common.timerthread import cpulseTimer
+from cloudpulse.common.timerthread import timerfunc
+from cloudpulse.TestManager.TestManager import Periodic_TestManager
+
 
 # Register options for the service
 bind_opts = [
@@ -67,4 +71,7 @@ def setup_app(config=None):
 
 #    TBD Add test hook later
 #    cpulseTimer(10, timerfunc, "Cpulse")
+    rt = cpulseTimer(10, timerfunc, "Cpulse")
+    tm = Periodic_TestManager()
+    tm.start()
     return auth.install(app, CONF, config.app.acl_public_routes)
