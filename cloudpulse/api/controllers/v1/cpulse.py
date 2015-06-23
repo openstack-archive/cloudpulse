@@ -78,8 +78,8 @@ class Cpulse(base.APIBase):
     @staticmethod
     def _convert_with_links(cpulse, url, expand=True):
         if not expand:
-            cpulse.unset_fields_except(['uuid', 'name', 'state', 'id', 'result'
-                                        'testtype'])
+            cpulse.unset_fields_except(['uuid', 'name', 'state', 'id',
+                                        'result', 'testtype'])
         return cpulse
 
     @classmethod
