@@ -133,9 +133,6 @@ class Connection(api.Connection):
         if not values.get('uuid'):
             values['uuid'] = utils.generate_uuid()
 
-        if not values.get('id'):
-            values['id'] = 777
-
         cpulse = models.cpulse()
         cpulse.update(values)
         # TODO(VINOD)
