@@ -71,10 +71,10 @@ def timerfunc(*args, **kwargs):
         LOG.debug(_LI('Dumping REPFUNCTION %s') % test['uuid'])
         if test['state'] == 'created' and test['testtype'] == 'manual':
             methodtocall = getattr(sys.modules[__name__], 'test_run')
-        # methodtocall()
-        testthr = threading.Thread(name=test['name'],
-                                   target=methodtocall,
-                                   kwargs={'test': test})
-        testthreads.append(testthr)
-        testthr.start()
-        LOG.debug(_LI('REPFUNCTION, exec test %s') % test['name'])
+            # methodtocall()
+            testthr = threading.Thread(name=test['name'],
+                                       target=methodtocall,
+                                       kwargs={'test': test})
+            testthreads.append(testthr)
+            testthr.start()
+            LOG.debug(_LI('REPFUNCTION, exec test %s') % test['name'])
