@@ -215,6 +215,7 @@ class cpulseController(rest.RestController):
         ncp.cpulse_create_timeout = 0
         ncp.result = "NotYetRun"
         ncp.testtype = "manual"
+        ncp.state = 'created'
         res_test = pecan.request.rpcapi.test_create(ncp,
                                                     ncp.cpulse_create_timeout)
 

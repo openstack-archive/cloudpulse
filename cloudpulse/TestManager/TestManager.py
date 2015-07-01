@@ -110,7 +110,7 @@ class TestManager(object):
         releaseLock()
         result = func()
         if result[0] == 200:
-            Test['state'] = 'finished'
+            Test['state'] = 'success'
             Test['result'] = 'success'
         else:
             Test['state'] = 'failed'
