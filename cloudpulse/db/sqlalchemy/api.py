@@ -30,15 +30,6 @@ import sqlalchemy.orm.exc
 CONF = cfg.CONF
 
 
-DB_OPTS = [
-    cfg.IntOpt('max_db_entries',
-               default=5,
-               help='The max number of db entries to keep')
-]
-db_group = cfg.OptGroup(name='database')
-CONF.register_opts(DB_OPTS, db_group)
-
-
 LOG = log.getLogger(__name__)
 
 
