@@ -19,9 +19,11 @@ import pecan
 import wsme
 
 from cloudpulse.common import exception
+from cloudpulse.common.plugin import discover
 from cloudpulse.common import utils
 from cloudpulse import objects
 from cloudpulse.openstack.common._i18n import _
+from cloudpulse.scenario import base
 
 CONF = cfg.CONF
 
@@ -68,3 +70,15 @@ def get_rpc_resource(resource, resource_ident):
         return resource.get_by_name(pecan.request.context, resource_ident)
 
     raise exception.InvalidUuidOrName(name=resource_ident)
+
+
+def get_rpc_resource_detail(resource, resource_ident):
+    resource = getattr(objects, resource)
+    test = resource.get_by_uuid(pecan.request.context, resource_ident)
+    discover.import_modules_from_package("cloudpulse.scenario.plugins")
+    for scenario_group in discover.itersubclasses(base.Scenario):
+        for method in dir(scenario_group):
+            if test['name'] == method:
+                scenario = scenario_group()
+                callback = getattr(scenario, 'verbose')
+    return callback()

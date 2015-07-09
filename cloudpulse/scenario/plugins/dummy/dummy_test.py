@@ -30,3 +30,9 @@ class dummy_scenario(base.Scenario):
     @base.scenario(operator=True)
     def dummy_cloudtest(self, *args, **kwargs):
         return (200, "success", ['dummy_result'])
+
+    def verbose(self, *args, **kwargs):
+        # This is a sample entry which spcifies how the verbose call
+        # should handle in each module.
+        return [{'result': 'success',
+                 'description': 'The test run successfully'}]
