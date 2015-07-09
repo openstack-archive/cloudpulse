@@ -26,7 +26,6 @@ from cloudpulse.api.controllers import link
 from cloudpulse.api.controllers.v1 import collection
 from cloudpulse.api.controllers.v1 import types
 from cloudpulse.api.controllers.v1 import utils as api_utils
-from cloudpulse.common import exception
 from cloudpulse import objects
 
 
@@ -165,29 +164,6 @@ class cpulseController(rest.RestController):
         return self._get_tests_collection(marker, limit, sort_key,
                                           sort_dir)
 
-    @wsme_pecan.wsexpose(CpulseCollection, types.uuid,
-                         types.uuid, int, wtypes.text, wtypes.text)
-    def detail(self, test_uuid=None, marker=None, limit=None,
-               sort_key='id', sort_dir='asc'):
-        """Retrieve a list of tests with detail.
-
-        :param test_uuid: UUID of a test, to get only tests for that test.
-        :param marker: pagination marker for large data sets.
-        :param limit: maximum number of resources to return in a single result.
-        :param sort_key: column to sort results by. Default: id.
-        :param sort_dir: direction to sort. "asc" or "desc". Default: asc.
-        """
-        # NOTE(lucasagomes): /detail should only work agaist collections
-        parent = pecan.request.path.split('/')[:-1][-1]
-        if parent != "tests":
-            raise exception.HTTPNotFound
-
-        expand = True
-        resource_url = '/'.join(['tests', 'detail'])
-        return self._get_tests_collection(marker, limit,
-                                          sort_key, sort_dir, expand,
-                                          resource_url)
-
     @wsme_pecan.wsexpose(Cpulse, types.uuid_or_name)
     def get_one(self, test_ident):
         """Retrieve information about the given test.
@@ -198,6 +174,16 @@ class cpulseController(rest.RestController):
         rpc_test = api_utils.get_rpc_resource('Cpulse', test_ident)
 
         return Cpulse.convert_with_links(rpc_test)
+
+    @pecan.expose('json')
+    def detail(self, test_ident):
+        """Retrieve detail information about the given test.
+
+        :param test_ident: UUID of a test or logical name of the test.
+        """
+        rpc_test_detail = api_utils.get_rpc_resource_detail('Cpulse',
+                                                            test_ident)
+        return rpc_test_detail
 
     @wsme_pecan.wsexpose(Cpulse, body=Cpulse, status_code=201)
     def post(self, test):
