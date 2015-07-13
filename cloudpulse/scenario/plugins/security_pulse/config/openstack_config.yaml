@@ -1,0 +1,5 @@
+control-1:
+    ip: 172.22.191.136
+    user: root
+    password: cisco123
+    role: controller
