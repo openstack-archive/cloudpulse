@@ -1,0 +1,54 @@
+securityhealth:
+  global_data:
+    file_info_dir: /tmp/sec_hc/
+  common:
+    perform_on: [controller,compute]
+    testcase: [tls_enablement_check]
+    password_encryption_check:
+      perform_on: [controller]
+      input:
+        conf_file: [/etc/keystone/keystone.conf]
+    filepermission:
+      input:
+        baseline_file: /tmp/sec_hc/os_allnode_baseline
+        controller_dir: [/etc/keystone,/etc/nova,/etc/neutron]
+        compute_dir: [/etc/nova,/etc/neutron]
+    logfile_mode_check:
+      perform_on: [controller,compute]
+      input:
+        conf_file_dir: [/etc/keystone/,/etc/nova/,/etc/neutron/,/etc/glance/]
+    logrotate_cfg_check:
+      perform_on: [controller,compute]
+      input:
+    ks_admin_token_check:
+      perform_on: [controller]
+      input:
+    tls_enablement_check:
+      perform_on: [controller]
+      input:
+  keystone:
+    perform_on: [controller]
+    testcase: [token_mangement.token_deletion,service.service_restart]
+    token_mangement:
+      token_deletion:
+        input:
+      token_expiration:
+        input:
+          token_time: 10
+    configuration:
+      configuration_check:
+        input:
+          algorithm: md5
+    service:
+      service_restart:
+        input:
+  horizon:
+    perform_on: [controller]
+    testcase:
+    configuration:
+      configuration_check:
+        input:
+          conffile: [https.conf]
+          ServerTokens: Prod
+          ServerSignature: off
+          TraceEnable: off
