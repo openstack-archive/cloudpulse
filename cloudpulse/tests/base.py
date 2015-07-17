@@ -15,9 +15,72 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+
+from cloudpulse.common import context as cpulse_context
+from cloudpulse.objects import base as objects_base
+from cloudpulse.tests import conf_fixture
+
+import mock
+from oslo_config import cfg
 from oslotest import base
+import pecan
+
+CONF = cfg.CONF
+CONF.set_override('use_stderr', False)
 
 
 class TestCase(base.BaseTestCase):
+    def setUp(self):
+        super(TestCase, self).setUp()
+        token_info = {
+            'token': {
+                'project': {
+                    'id': 'fake_project'
+                },
+                'user': {
+                    'id': 'fake_user'
+                }
+            }
+        }
+        self.context = cpulse_context.RequestContext(
+            auth_token_info=token_info,
+            project_id='fake_project',
+            user_id='fake_user')
 
-    """Test case base class for all unit tests."""
+        def make_context(*args, **kwargs):
+            # If context hasn't been constructed with token_info
+            if not kwargs.get('auth_token_info'):
+                kwargs['auth_token_info'] = copy.deepcopy(token_info)
+            if not kwargs.get('project_id'):
+                kwargs['project_id'] = 'fake_project'
+            if not kwargs.get('user_id'):
+                kwargs['user_id'] = 'fake_user'
+
+            context = cpulse_context.RequestContext(*args, **kwargs)
+            return cpulse_context.RequestContext.from_dict(context.to_dict())
+
+        p = mock.patch.object(cpulse_context, 'make_context',
+                              side_effect=make_context)
+        self.mock_make_context = p.start()
+        self.addCleanup(p.stop)
+
+        self.useFixture(conf_fixture.ConfFixture(cfg.CONF))
+
+        self._base_test_obj_backup = copy.copy(
+            objects_base.CloudpulseObjectRegistry._registry._obj_classes)
+        self.addCleanup(self._restore_obj_registry)
+
+    def _restore_obj_registry(self):
+        objects_base.CloudpulseObjectRegistry._registry._obj_classes \
+            = self._base_test_obj_backup
+
+    def tearDown(self):
+        super(TestCase, self).tearDown()
+        pecan.set_config({}, overwrite=True)
+
+    def config(self, **kw):
+        """Override config options for a test."""
+        group = kw.pop('group', None)
+        for k, v in kw.iteritems():
+            CONF.set_override(k, v, group)
