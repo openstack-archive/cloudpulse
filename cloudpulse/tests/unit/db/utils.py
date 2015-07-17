@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2010-2011 OpenStack Foundation
-# Copyright (c) 2013 Hewlett-Packard Development Company, L.P.
+# Copyright (c) 2013 Cisco Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -15,13 +13,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
-from oslotest import base
-
-CONF = cfg.CONF
-CONF.set_override('use_stderr', False)
+from cloudpulse.db import api as db_api
 
 
-class TestCase(base.BaseTestCase):
+def get_cpulse_test(**kw):
+    return {
+        'id': kw.get('id', 32),
+        'uuid': kw.get('uuid', 'e74c40e0-d825-11e2-a28f-0800200c9a66'),
+        'name': kw.get('name', 'nova_endpoint'),
+        'state': kw.get('state', 'created'),
+        'result': kw.get('state', 'success'),
+        'testtype': kw.get('testtype', 'periodic'),
+    }
 
-    """Test case base class for all unit tests."""
+
+def create_cpulse_test(**kw):
+    test = get_cpulse_test(**kw)
+    dbapi = db_api.get_instance()
+    return dbapi.create_test(test)
