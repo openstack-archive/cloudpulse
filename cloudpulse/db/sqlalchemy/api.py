@@ -145,7 +145,7 @@ class Connection(api.Connection):
 
     def get_test_by_id(self, context, test_id):
         query = model_query(models.cpulse)
-        query = self._add_tenant_filters(context, query)
+        # query = self._add_tenant_filters(context, query)
         query = query.filter_by(id=test_id)
         try:
             return query.one()
@@ -154,7 +154,7 @@ class Connection(api.Connection):
 
     def get_test_by_name(self, context, test_name):
         query = model_query(models.cpulse)
-        query = self._add_tenant_filters(context, query)
+        # query = self._add_tenant_filters(context, query)
         query = query.filter_by(name=test_name)
         try:
             return query.one()
