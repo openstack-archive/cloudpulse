@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""Cloudpulse specific config handling."""
+"""Magnum specific config handling."""
 
 from oslo_config import cfg
 
@@ -25,15 +25,17 @@ server = {
 }
 
 # Pecan Application Configurations
-app = {'root': 'cloudpulse.api.controllers.root.RootController',
-       'modules': ['cloudpulse.api'],
-       'static_root': '%(confdir)s/public',
-       'template_path': '%(confdir)s/api/templates',
-       'debug': True,
-       'errors': {404: '/error/404',
-                  '__force_dict__': True
-                  }
-       }
+app = {
+    'root': 'cloudpulse.api.controllers.root.RootController',
+    'modules': ['cloudpulse.api'],
+    'static_root': '%(confdir)s/public',
+    'template_path': '%(confdir)s/api/templates',
+    'debug': True,
+    'errors': {
+        404: '/error/404',
+        '__force_dict__': True
+    }
+}
 
 logging = {
     'root': {'level': 'INFO', 'handlers': ['console']},
