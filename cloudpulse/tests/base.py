@@ -26,6 +26,7 @@ import mock
 from oslo_config import cfg
 from oslotest import base
 import pecan
+from pecan import testing
 
 CONF = cfg.CONF
 CONF.set_override('use_stderr', False)
@@ -34,6 +35,10 @@ CONF.set_override('use_stderr', False)
 class TestCase(base.BaseTestCase):
     def setUp(self):
         super(TestCase, self).setUp()
+        self.app = testing.load_test_app(os.path.join(
+            os.path.dirname(__file__),
+            'config.py'
+        ))
         token_info = {
             'token': {
                 'project': {
