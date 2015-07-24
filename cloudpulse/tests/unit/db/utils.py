@@ -24,6 +24,8 @@ def get_cpulse_test(**kw):
         'state': kw.get('state', 'created'),
         'result': kw.get('state', 'success'),
         'testtype': kw.get('testtype', 'periodic'),
+        'created_at': kw.get('created_at'),
+        'updated_at': kw.get('updated_at'),
     }
 
 
