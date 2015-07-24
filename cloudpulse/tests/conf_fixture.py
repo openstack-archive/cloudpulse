@@ -14,12 +14,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import fixtures
-from oslo_config import cfg
-
 from cloudpulse.common import config
-
-cfg.CONF.register_opt(cfg.StrOpt('host', default='localhost', help='host'))
+import fixtures
 
 
 class ConfFixture(fixtures.Fixture):
