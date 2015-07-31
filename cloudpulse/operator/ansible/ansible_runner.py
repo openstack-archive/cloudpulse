@@ -22,6 +22,7 @@ TMP_LOCATION = "/tmp/sec_hc/"
 
 
 class ansible_runner(object):
+
     def __init__(self,
                  os_node_list=[]):
         self.openstack_node = os_node_list
@@ -135,6 +136,45 @@ class ansible_runner(object):
                 print ("Error opening the file : " + TMP_LOCATION +
                        'output/' + f + TMP_LOCATION + 'output')
         return result
+
+    def validate_results(self, results, checks=None):
+        results['status'] = 'PASS'
+        failed_hosts = []
+
+        if results['dark']:
+            failed_hosts.append(results['dark'].keys())
+            results['status'] = 'FAIL'
+            results['status_message'] = ''
+
+        for node in results['contacted'].keys():
+            if 'failed' in results['contacted'][node]:
+                if results['contacted'][node]['failed'] is True:
+                    results['status'] = 'FAIL'
+                    results['status_message'] = ''
+
+        for node in results['contacted'].keys():
+            rc = results['contacted'][node].get('rc', None)
+            if rc is not None and rc != 0:
+                failed_hosts.append(node)
+                results['status'] = 'FAIL'
+                results['status_message'] = results[
+                    'contacted'][node].get('stderr', None)
+
+        if checks is None:
+            # print "No additional checks validated"
+            return results, failed_hosts
+
+        for check in checks:
+            key = check.keys()[0]
+            value = check.values()[0]
+            for node in results['contacted'].keys():
+                if key in results['contacted'][node].keys():
+                    if results['contacted'][node][key] != value:
+                        failed_hosts.append(node)
+                        results['status'] = 'FAIL'
+                        results['status_message'] = ''
+
+        return (results, failed_hosts)
 
 """
 if __name__ == '__main__':
