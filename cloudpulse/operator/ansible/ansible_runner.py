@@ -22,12 +22,12 @@ TMP_LOCATION = "/tmp/sec_hc/"
 
 
 class ansible_runner(object):
+
     def __init__(self,
                  os_node_list=[]):
         self.openstack_node = os_node_list
         # print self.openstack_node
         self.remote_user = None
-        self.remote_pass = None
         self.inventory = None
 
     def execute_cmd(self, command, file_list=[], ips=[], roles=[]):
@@ -57,16 +57,14 @@ class ansible_runner(object):
     def set_ansible_inventory(self, inv):
         self.inventory = inv
 
-    def set_credential(self, user, passwd):
+    def set_credential(self, user):
         self.remote_user = user
-        self.remote_pass = passwd
 
     def init_ansible_inventory(self, os_node_list):
         ip_list = []
         for os_node in self.openstack_node:
             ip_list.append(os_node.getIp())
             self.remote_user = os_node.getUser()
-            self.remote_pass = os_node.getPassword()
         # print ip_list
         inventory = ansible.inventory.Inventory(ip_list)
         return inventory
@@ -92,7 +90,6 @@ class ansible_runner(object):
             module_name='copy',
             module_args='src=%s dest=%s' % (src, dest),
             remote_user=self.remote_user,
-            remote_pass=self.remote_pass,
             inventory=self.inventory,
         )
         out = runner.run()
@@ -103,7 +100,6 @@ class ansible_runner(object):
             module_name='fetch',
             module_args='src=%s dest=%s flat=%s' % (src, dest, flat),
             remote_user=self.remote_user,
-            remote_pass=self.remote_pass,
             inventory=self.inventory,
         )
         out = runner.run()
@@ -116,7 +112,6 @@ class ansible_runner(object):
             module_name='shell',
             module_args=command,
             remote_user=self.remote_user,
-            remote_pass=self.remote_pass,
             inventory=self.inventory,
         )
         out = runner.run()
@@ -135,6 +130,45 @@ class ansible_runner(object):
                 print ("Error opening the file : " + TMP_LOCATION +
                        'output/' + f + TMP_LOCATION + 'output')
         return result
+
+    def validate_results(self, results, checks=None):
+        results['status'] = 'PASS'
+        failed_hosts = []
+
+        if results['dark']:
+            failed_hosts.append(results['dark'].keys())
+            results['status'] = 'FAIL'
+            results['status_message'] = ''
+
+        for node in results['contacted'].keys():
+            if 'failed' in results['contacted'][node]:
+                if results['contacted'][node]['failed'] is True:
+                    results['status'] = 'FAIL'
+                    results['status_message'] = ''
+
+        for node in results['contacted'].keys():
+            rc = results['contacted'][node].get('rc', None)
+            if rc is not None and rc != 0:
+                failed_hosts.append(node)
+                results['status'] = 'FAIL'
+                results['status_message'] = results[
+                    'contacted'][node].get('stderr', None)
+
+        if checks is None:
+            # print "No additional checks validated"
+            return results, failed_hosts
+
+        for check in checks:
+            key = check.keys()[0]
+            value = check.values()[0]
+            for node in results['contacted'].keys():
+                if key in results['contacted'][node].keys():
+                    if results['contacted'][node][key] != value:
+                        failed_hosts.append(node)
+                        results['status'] = 'FAIL'
+                        results['status_message'] = ''
+
+        return (results, failed_hosts)
 
 """
 if __name__ == '__main__':

@@ -111,7 +111,7 @@ class TestManager(object):
         result = func()
         if result[0] == 200:
             Test['state'] = 'success'
-            Test['result'] = 'success'
+            Test['result'] = textwrap.fill(str(result[1]), 40)
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)
@@ -124,7 +124,7 @@ class TestManager(object):
         func = self.command_ref[Test['name']]
         result = func()
         if result[0] == 200:
-            Test['result'] = 'success'
+            Test['result'] = textwrap.fill(str(result[1]), 40)
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)

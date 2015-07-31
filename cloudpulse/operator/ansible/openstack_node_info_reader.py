@@ -57,6 +57,16 @@ class openstack_node_info_reader(object):
             print ("%s - %s - %s", hostObj.getIp(),
                    hostObj.getHost(), hostObj.getUser())
 
+    def get_galera_details(self):
+        galera = {}
+        print(self.hostYamlObj)
+        for key in self.hostYamlObj.keys():
+            if 'galerauser' in self.hostYamlObj[key].keys():
+
+                galera['username'] = self.hostYamlObj[key]['galerauser']
+                galera['password'] = self.hostYamlObj[key]['galerapassword']
+        return galera
+
 """
 if __name__ == '__main__':
     os_node_info_obj = openstack_node_info_reader()
