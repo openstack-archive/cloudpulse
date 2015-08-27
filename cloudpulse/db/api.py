@@ -125,31 +125,31 @@ class Connection(object):
         """
 
     @abc.abstractmethod
-    def create_test_lock(self, test_uuid):
+    def create_test_lock(self, test_name):
         """Create a new testlock.
 
         This method will fail if the test has already been locked.
 
-        :param test_uuid: The uuid of a test.
+        :param test_name: The name of a test.
         :returns: None if success.
                   Otherwise, the id of the the test.
         """
 
     @abc.abstractmethod
-    def steal_test_lock(self, test_uuid):
+    def steal_test_lock(self, test_name):
         """Steal lock of a test.
 
         Lock the test with test id if the test is currently locked.
 
-        :param test_uuid: The uuid of a test.
+        :param test_name: The name of a test.
         :returns: None if success. True if the test is not locked.
                   Otherwise, the id of the test.
         """
 
     @abc.abstractmethod
-    def release_test_lock(self, test_uuid):
+    def release_test_lock(self, test_name):
         """Release lock of a test.
 
-        :param test_uuid: The uuid of a test.
+        :param test_name: The name of a test.
         :returns: None if success. True otherwise.
         """

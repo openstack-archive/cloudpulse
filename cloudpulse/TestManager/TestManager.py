@@ -12,15 +12,18 @@
 
 from cloudpulse.common import context as cloudpulse_context
 from cloudpulse.common.plugin import discover
+from cloudpulse.common import utils
+from cloudpulse.conductor import cpulse_lock
 from cloudpulse.db.sqlalchemy import api as dbapi
 from cloudpulse import objects
 from cloudpulse.openstack.common import service as os_service
 from cloudpulse.scenario import base
+import datetime
 import logging
 from oslo_config import cfg
 from oslo_utils import importutils
+import pytz
 import textwrap
-import threading
 
 cfg.CONF.import_opt('auth_uri', 'keystonemiddleware.auth_token',
                     group='keystone_authtoken')
@@ -28,34 +31,39 @@ cfg.CONF.import_opt('auth_uri', 'keystonemiddleware.auth_token',
 
 CONF = cfg.CONF
 
-dblock = threading.RLock()
-
-
-def acquireLock():
-    dblock.acquire()
-
-
-def releaseLock():
-    dblock.release()
-
-
 LOG = logging.getLogger(__name__)
 
 
 class Periodic_Task(object):
+
     def __init__(self, task):
         self.task = task
+        self.conductor_id = '1'
 
     def create_task_entry(self, context):
         test = {}
         test['state'] = 'created'
         test['testtype'] = 'periodic'
         test['name'] = self.task
+        test['uuid'] = utils.generate_uuid()
         new_test = objects.Cpulse(context, **test)
-        acquireLock()
-        new_test.create()
-        releaseLock()
+        with cpulse_lock.thread_lock(new_test, self.conductor_id):
+            new_test.create()
         return new_test
+
+    def check_if_already_run(self, context):
+        tasks = CONF.periodic_tests
+        task_interval = int(tasks[self.task])
+        filters = {}
+        filters['name'] = self.task
+        lasttest = objects.Cpulse.list(context, filters=filters)[-1]
+        lastime = lasttest['created_at']
+        timenow = datetime.datetime.now(pytz.utc)
+        timesincelast = (timenow - lastime).seconds
+        if timesincelast >= task_interval:
+            return True
+        else:
+            return False
 
     def run_task(self):
         importutils.import_module('keystonemiddleware.auth_token')
@@ -68,12 +76,13 @@ class Periodic_Task(object):
             auth_url=auth_url,
             user=username,
             project=tenant_name)
-
-        new_test = self.create_task_entry(context)
-        test_manager.run(test=new_test)
+        if self.check_if_already_run(context):
+            new_test = self.create_task_entry(context)
+            test_manager.run(test=new_test)
 
 
 class Periodic_TestManager(os_service.Service):
+
     def __init__(self):
         super(Periodic_TestManager, self).__init__()
 
@@ -92,8 +101,10 @@ class Periodic_TestManager(os_service.Service):
 
 
 class TestManager(object):
+
     def __init__(self):
         self.command_ref = {}
+        self.conductor_id = '1'
         discover.import_modules_from_package("cloudpulse.scenario.plugins")
         for scenario_group in discover.itersubclasses(base.Scenario):
             for method in dir(scenario_group):
@@ -105,9 +116,8 @@ class TestManager(object):
         Test = kwargs['test']
         func = self.command_ref[Test['name']]
         Test['state'] = 'running'
-        acquireLock()
-        self.update_test(Test['uuid'], Test)
-        releaseLock()
+        with cpulse_lock.thread_lock(Test, self.conductor_id):
+            self.update_test(Test['uuid'], Test)
         result = func()
         if result[0] == 200:
             Test['state'] = 'success'
@@ -115,9 +125,8 @@ class TestManager(object):
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)
-        acquireLock()
-        self.update_test(Test['uuid'], Test)
-        releaseLock()
+        with cpulse_lock.thread_lock(Test, self.conductor_id):
+            self.update_test(Test['uuid'], Test)
 
     def run_periodic(self, **kwargs):
         Test = kwargs['test']
@@ -128,9 +137,8 @@ class TestManager(object):
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)
-        acquireLock()
-        self.update_test(Test['uuid'], Test)
-        releaseLock()
+        with cpulse_lock.thread_lock(Test, self.conductor_id):
+            self.update_test(Test['uuid'], Test)
 
     def update_test(self, tuuid, patch):
         npatch = {}

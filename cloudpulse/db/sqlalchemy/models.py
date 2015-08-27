@@ -135,9 +135,9 @@ class CpulseLock(Base):
 
     __tablename__ = 'cpulselock'
     __table_args__ = (
-        schema.UniqueConstraint('test_uuid', name='uniq_testlock0test_uuid'),
+        schema.UniqueConstraint('test_name', name='uniq_testlock0test_name'),
         table_args()
         )
     id = Column(Integer, primary_key=True)
-    test_uuid = Column(String(36))
+    test_name = Column(String(64))
     conductor_id = Column(String(64))
