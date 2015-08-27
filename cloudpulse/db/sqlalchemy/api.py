@@ -100,6 +100,7 @@ def _paginate_query(model, limit=None, marker=None, sort_key=None,
 
 
 class Connection(api.Connection):
+
     """SqlAlchemy connection."""
 
     def __init__(self):
@@ -126,6 +127,7 @@ class Connection(api.Connection):
                       sort_key=None, sort_dir=None):
         # query = model_query(models.cpulse)
         query = model_query(models.cpulse)
+        query = self._add_tests_filters(query, filters)
         return _paginate_query(models.cpulse, limit, marker,
                                sort_key, sort_dir, query)
 
@@ -212,13 +214,36 @@ class Connection(api.Connection):
         return ref
 
     def create_test_lock(self, test_uuid, conductor_id):
-        pass
+        session = get_session()
+        with session.begin():
+            query = model_query(models.CpulseLock, session=session)
+            lock = query.filter_by(test_uuid=test_uuid).first()
+            if lock is not None:
+                return lock.conductor_id
+            session.add(models.CpulseLock(test_uuid=test_uuid,
+                                          conductor_id=conductor_id))
 
     def steal_test_lock(self, test_uuid, old_conductor_id, new_conductor_id):
-        pass
+        session = get_session()
+        with session.begin():
+            query = model_query(models.CpulseLock, session=session)
+            lock = query.filter_by(test_uuid=test_uuid).first()
+            if lock is None:
+                return True
+            elif lock.conductor_id != old_conductor_id:
+                return lock.conductor_id
+            else:
+                lock.update({'conductor_id': new_conductor_id})
 
     def release_test_lock(self, test_uuid, conductor_id):
-        pass
+        session = get_session()
+        with session.begin():
+            query = model_query(models.CpulseLock, session=session)
+            query = query.filter_by(test_uuid=test_uuid,
+                                    conductor_id=conductor_id)
+            count = query.delete()
+            if count == 0:
+                return True
 
     def delete_old_tests(self, num_range,
                          num_tests=cfg.CONF.database.max_db_entries):

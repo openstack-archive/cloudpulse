@@ -13,7 +13,10 @@
 #    under the License.
 
 from cloudpulse.objects import cpulse
+from cloudpulse.objects import cpulselock
 
+
+CpulseLock = cpulselock.CpulseLock
 Cpulse = cpulse.Cpulse
 
 __all__ = (Cpulse)
