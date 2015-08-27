@@ -170,6 +170,7 @@ def wrap_keystone_exception(func):
 
 
 class CloudpulseException(Exception):
+
     """Base Cloudpulse Exception
 
     To correctly use this class, inherit from it and define
@@ -336,6 +337,10 @@ class NotSupported(CloudpulseException):
 
 class RequiredParameterNotProvided(CloudpulseException):
     message = _("Required parameter %(heat_param)s not provided.")
+
+
+class TestLocked(CloudpulseException):
+    message = _("A process has already locked the database for update")
 
 
 class Urllib2InvalidScheme(CloudpulseException):

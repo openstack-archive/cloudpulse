@@ -139,5 +139,5 @@ class CpulseLock(Base):
         table_args()
         )
     id = Column(Integer, primary_key=True)
-    test_uuid = Column(String(36))
+    test_uuid = Column(String(64))
     conductor_id = Column(String(64))
