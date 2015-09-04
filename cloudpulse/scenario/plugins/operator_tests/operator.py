@@ -15,6 +15,7 @@ from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 from cloudpulse.operator.ansible.openstack_node_info_reader import \
     openstack_node_info_reader
 from cloudpulse.scenario import base
+import json
 from oslo_config import cfg
 import re
 
@@ -119,4 +120,25 @@ class operator_scenario(base.Scenario):
                     ['Galera Cluster Test Passed'])
         else:
             return (404, ("Galera Cluster Test Failed: %s" %
+                          results['status_message']), [])
+
+    @base.scenario(admin_only=False, operator=True)
+    def ceph_check(self):
+        self.load()
+        cmd = (r"ceph -f json status")
+        out = self.ans_runner.execute(cmd)
+        results, failed_hosts = self.ans_runner.validate_results(out)
+
+        if results['status'] is 'PASS':
+            ceph_status = results['contacted'][
+                results['contacted'].keys()[0]]['stdout']
+            ceph_status_string = ceph_status.replace('\n', '')
+            ceph_json = json.loads(ceph_status_string)
+            overall_status = ceph_json['health']['overall_status']
+            num_of_osd = ceph_json['osdmap']['osdmap']['num_osds']
+            num_up_osds = ceph_json['osdmap']['osdmap']['num_up_osds']
+            return (200, "Overall Status = %s, Cluster status = %s/%s" %
+                    (overall_status, num_up_osds, num_of_osd))
+        else:
+            return (404, ("Ceph cluster Test Failed: %s" %
                           results['status_message']), [])
