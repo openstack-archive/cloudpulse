@@ -79,13 +79,13 @@ class operator_scenario(base.Scenario):
         out = self.ans_runner.execute(cmd)
         res, output = self.ans_runner.validate_results(out)
 
-        node_status = res['contacted'][res['contacted'].keys()[0]]['stdout']
-        node_status_string = node_status.replace('\n', '')
-        mathobj = re.search(
-            r'running_nodes,(.*?)}', node_status_string, re.M | re.I)
-        nodes = mathobj.group(1)
-
         if res['status'] is 'PASS':
+            node_status = res['contacted'][
+                res['contacted'].keys()[0]]['stdout']
+            node_status_string = node_status.replace('\n', '')
+            mathobj = re.search(
+                r'running_nodes,(.*?)}', node_status_string, re.M | re.I)
+            nodes = mathobj.group(1)
             return (200, "Active Nodes : %s" % nodes,
                     ['RabbitMQ-server Running'])
         else:
@@ -97,8 +97,9 @@ class operator_scenario(base.Scenario):
         self.load()
         galera = self.os_node_info_obj.get_galera_details()
 
-        cmd = (r"mysql -u %s -e 'SHOW STATUS;'|grep wsrep_incoming_addresses" %
-               (galera['username']))
+        cmd = ((r"mysql -u %s -p%s -e 'SHOW STATUS;'|grep "
+                "wsrep_incoming_addresses") %
+               (galera['username'], galera['password']))
 
         is_containerized = cfg.CONF.operator_test.containerized
         if is_containerized:
@@ -108,14 +109,13 @@ class operator_scenario(base.Scenario):
         out = self.ans_runner.execute(cmd)
         results, failed_hosts = self.ans_runner.validate_results(out)
 
-        galera_status = results['contacted'][
-            results['contacted'].keys()[0]]['stdout']
-        galera_status_string = galera_status.replace('\n', '')
-        mathobj = re.search(r'wsrep_incoming_addresses\s+(.*?)$',
-                            galera_status_string, re.M | re.I)
-        nodes = mathobj.group(1)
-
         if results['status'] is 'PASS':
+            galera_status = results['contacted'][
+                results['contacted'].keys()[0]]['stdout']
+            galera_status_string = galera_status.replace('\n', '')
+            mathobj = re.search(r'wsrep_incoming_addresses\s+(.*?)$',
+                                galera_status_string, re.M | re.I)
+            nodes = mathobj.group(1)
             return (200, "Active Nodes : %s" % nodes,
                     ['Galera Cluster Test Passed'])
         else:

@@ -15,11 +15,10 @@
 
 
 class openstack_node_obj(object):
-    def __init__(self, host, ip, user, password, role, name):
+    def __init__(self, host, ip, user, role, name):
         self.host = host
         self.ip = ip
         self.user = user
-        self.password = password
         self.role = role
         self.name = name
 
@@ -31,9 +30,6 @@ class openstack_node_obj(object):
 
     def getUser(self):
         return self.user
-
-    def getPassword(self):
-        return self.password
 
     def getRole(self):
         return self.role

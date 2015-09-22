@@ -40,10 +40,9 @@ class openstack_node_info_reader(object):
             ip = self.hostYamlObj[key]["ip"]
             hostname = key
             username = self.hostYamlObj[key]["user"]
-            password = self.hostYamlObj[key]["password"]
             role = self.hostYamlObj[key]["role"]
             node_obj = openstack_node_obj(hostname, ip, username,
-                                          password, role, name)
+                                          role, name)
             openstack_host_list.append(node_obj)
         return openstack_host_list
 
