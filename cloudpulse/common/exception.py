@@ -330,6 +330,10 @@ class TestAlreadyExists(Conflict):
     message = _("A test with UUID %(uuid)s already exists.")
 
 
+class TestInvalid(Invalid):
+    message = _("The test name %(test)s is invalid")
+
+
 class NotSupported(CloudpulseException):
     message = _("%(operation)s is not supported.")
     code = 400

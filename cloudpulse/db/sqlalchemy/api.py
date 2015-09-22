@@ -15,11 +15,13 @@
 """SQLAlchemy storage backend."""
 
 from cloudpulse.common import exception
+from cloudpulse.common.plugin import discover
 from cloudpulse.common import utils
 from cloudpulse.db import api
 from cloudpulse.db.sqlalchemy import models
 from cloudpulse.openstack.common._i18n import _
 from cloudpulse.openstack.common import log
+from cloudpulse.scenario import base
 from oslo_config import cfg
 from oslo_db import exception as db_exc
 from oslo_db.sqlalchemy import session as db_session
@@ -132,6 +134,12 @@ class Connection(api.Connection):
                                sort_key, sort_dir, query)
 
     def create_test(self, values):
+        # ensure that  the test name is valid
+        discover.import_modules_from_package("cloudpulse.scenario.plugins")
+        plugins = discover.itersubclasses(base.Scenario)
+        if not any(values['name'] in dir(scenario) for scenario in plugins):
+            raise exception.TestInvalid(test=values['name'])
+
         # ensure defaults are present for new tests
         if not values.get('uuid'):
             values['uuid'] = utils.generate_uuid()

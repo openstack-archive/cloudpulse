@@ -56,14 +56,18 @@ class Periodic_Task(object):
         task_interval = int(tasks[self.task])
         filters = {}
         filters['name'] = self.task
-        lasttest = objects.Cpulse.list(context, filters=filters)[-1]
-        lastime = lasttest['created_at']
-        timenow = datetime.datetime.now(pytz.utc)
-        timesincelast = (timenow - lastime).seconds
-        if timesincelast >= task_interval:
-            return True
+        tests = objects.Cpulse.list(context, filters=filters)
+        if tests:
+            lasttest = objects.Cpulse.list(context, filters=filters)[-1]
+            lastime = lasttest['created_at']
+            timenow = datetime.datetime.now(pytz.utc)
+            timesincelast = (timenow - lastime).seconds
+            if timesincelast >= task_interval:
+                return True
+            else:
+                return False
         else:
-            return False
+            return True
 
     def run_task(self):
         importutils.import_module('keystonemiddleware.auth_token')
