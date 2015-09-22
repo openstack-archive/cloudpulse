@@ -4,4 +4,4 @@ source = cloudpulseclient
 omit = cloudpulseclient/openstack/*
 
 [report]
-ignore-errors = True
+ignore_errors = True
