@@ -41,7 +41,10 @@ PERIODIC_TESTS_OPTS = [
                help='The rabbitmq periodic check'),
     cfg.IntOpt('galera_check',
                default=0,
-               help='The galera periodic check')
+               help='The galera periodic check'),
+    cfg.IntOpt('ceph_check',
+               default=0,
+               help='The ceph periodic check')
 ]
 
 CONF = cfg.CONF
