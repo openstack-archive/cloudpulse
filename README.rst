@@ -2,7 +2,7 @@
 http://github.com/stackforge/cloudpulse
 ===============================
 
-a Health-Checking Service for OpenStack deployments.
+A Health-Checking Service for OpenStack deployments.
 
 * Free software: Apache license
 * Documentation: http://docs.openstack.org/developer/http://github.com/stackforge/cloudpulse
