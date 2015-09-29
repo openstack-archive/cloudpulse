@@ -86,11 +86,29 @@ class operator_scenario(base.Scenario):
             node_status = res['contacted'][
                 res['contacted'].keys()[0]]['stdout']
             node_status_string = node_status.replace('\n', '')
+
+            nodes = []
+            running_nodes = []
             mathobj = re.search(
-                r'running_nodes,(.*?)}', node_status_string, re.M | re.I)
-            nodes = mathobj.group(1)
-            return (200, "Active Nodes : %s" % nodes,
-                    ['RabbitMQ-server Running'])
+                r'nodes,\[{disc,\[(.*?)\]', node_status_string, re.M | re.I)
+            if mathobj:
+                nodes = [x.rstrip("'").lstrip("'")
+                         for x in mathobj.group(1).split(",")]
+
+            mathobj = re.search(
+                r'running_nodes,\[(.*?)\]}', node_status_string, re.M | re.I)
+
+            if mathobj:
+                running_nodes = [x.rstrip("'").lstrip("'")
+                                 for x in mathobj.group(1).split(",")]
+
+            diffnodes = list(set(nodes) - set(running_nodes))
+            if diffnodes:
+                return(404, ("Failed Nodes : %s" %
+                             str(diffnodes)))
+            else:
+                return (200, "Running Nodes : %s" % str(nodes),
+                        ['RabbitMQ-server Running'])
         else:
             return (404, ("RabbitMQ-server test failed :%s" %
                           res['status_message']), [])
@@ -140,8 +158,12 @@ class operator_scenario(base.Scenario):
             overall_status = ceph_json['health']['overall_status']
             num_of_osd = ceph_json['osdmap']['osdmap']['num_osds']
             num_up_osds = ceph_json['osdmap']['osdmap']['num_up_osds']
-            return (200, "Overall Status = %s, Cluster status = %s/%s" %
-                    (overall_status, num_up_osds, num_of_osd))
+            if overall_status == 'HEALTH_OK':
+                return (200, "Overall Status = %s, Cluster status = %s/%s" %
+                        (overall_status, num_up_osds, num_of_osd))
+            else:
+                return (404, "Overall Status = %s, Cluster status = %s/%s" %
+                        (overall_status, num_up_osds, num_of_osd))
         else:
             return (404, ("Ceph cluster Test Failed: %s" %
                           results['status_message']), [])
