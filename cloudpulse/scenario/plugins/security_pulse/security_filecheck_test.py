@@ -15,14 +15,11 @@
 
 from __future__ import print_function
 import cloudpulse
-# from cloudpulse.operator.ansible.openstack_node import openstack_node_obj
 from cloudpulse.operator.ansible.openstack_node_info_reader import \
     openstack_node_info_reader
 from cloudpulse.scenario import base
-from cloudpulse.scenario.plugins.security_pulse.testcase.tls_enable_test \
-    import tls_enablement_test
-from cloudpulse.scenario.plugins.security_pulse.testcase.\
-    ks_admin_token_check import ks_admin_token_check
+from cloudpulse.scenario.plugins.security_pulse.testcase.file_check_test\
+    import SecurityFileCheck
 from cloudpulse.scenario.plugins.security_pulse.util.\
     security_pulse_test_input import security_test_input_reader
 from cloudpulse.scenario.plugins.security_pulse.util import \
@@ -49,9 +46,9 @@ CONF.register_group(security_pulse_test_group)
 CONF.register_opts(TESTS_OPTS, security_pulse_test_group)
 
 
-class security_common_test(base.Scenario):
+class security_filecheck_test(base.Scenario):
 
-    def security_keystone_tls_enablement_check(self, *args, **kwargs):
+    def security_file_check(self, *args, **kwargs):
         testcase_input_file = ""
         try:
             testcase_input_file =\
@@ -60,14 +57,15 @@ class security_common_test(base.Scenario):
             print ("Exception while reading the testcase input file")
             return (404, json.dumps([{'Message': e.message}]), [])
         if not os.path.isfile(testcase_input_file):
-            print ("Security Testcase input file not found")
-            msg = {'Message': "Security Testcase input file not found"}
+            print ("Security file checking Testcase input file not found")
+            msg = {'Message': "Security file checking Testcase input file \
+            not found"}
             return (404, json.dumps([msg]), [])
         base_dir = os.path.dirname(cloudpulse.__file__)
         input_reader = security_test_input_reader(testcase_input_file)
         input_data = input_reader.process_security_input_file()
         input_params = security_pulse_test_util.\
-            get_test_input_by_name("tls_enablement_check", input_data)
+            get_test_input_by_name("filepermission", input_data)
         # os_node_info_obj = \
         #     openstack_node_info_reader(base_dir +
         #                                "/scenario/plugins/security_pulse/" +
@@ -76,38 +74,14 @@ class security_common_test(base.Scenario):
             cfg.CONF.security_pulse_test.testcase_setup_file)
         openstack_node_list = os_node_info_obj.get_host_list()
         input_params['os_host_list'] = openstack_node_list
-        tls_test = tls_enablement_test()
-        result = tls_test.perform_tls_enablement_test(input_params)
+        sec_file_check = SecurityFileCheck()
+        result = \
+            sec_file_check.perform_file_permission_check(input_params)
+        print ("result from security_file_check")
+        print (result)
         return result
 
-    def security_keystone_admin_token_check(self, *args, **kwargs):
-        testcase_input_file = ""
-        try:
-            testcase_input_file =\
-                cfg.CONF.security_pulse_test.testcase_input_file
-        except Exception as e:
-            print ("Exception while reading the testcase input file")
-            return (404, json.dumps([{'Message': e.message}]), [])
-        if not os.path.isfile(testcase_input_file):
-            msg = {'Message': "Security Testcase input file not found"}
-            return (404, json.dumps([msg]), [])
-        base_dir = os.path.dirname(cloudpulse.__file__)
-        input_reader = security_test_input_reader(testcase_input_file)
-        input_data = input_reader.process_security_input_file()
-        input_params = security_pulse_test_util.\
-            get_test_input_by_name("ks_admin_token_check", input_data)
-        # os_node_info_obj = \
-        #     openstack_node_info_reader(base_dir +
-        #                                "/scenario/plugins/security_pulse/" +
-        #                                "config/openstack_config.yaml")
-        os_node_info_obj = openstack_node_info_reader(
-            cfg.CONF.security_pulse_test.testcase_setup_file)
-        openstack_node_list = os_node_info_obj.get_host_list()
-        input_params['os_host_list'] = openstack_node_list
-        ks_test = ks_admin_token_check()
-        result = ks_test.perform_ks_admin_token_check_test(input_params)
-        return result
 
 if __name__ == '__main__':
-    sct = security_common_test()
-    sct.security_tls_enablement_check()
+    sfc = security_filecheck_test()
+    sfc.security_file_check()

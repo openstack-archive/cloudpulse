@@ -1,0 +1,24 @@
+# control-1:
+#     ip: 172.31.231.14
+#     user: root
+#     password: cisco123
+#     role: controller
+#     dirlist: [/etc/keystone,/etc/nova,/etc/neutron]
+# compute-1:
+#     ip: 172.31.231.15
+#     user: root
+#     password: cisco123
+#     role: compute
+#     dirlist: [/etc/nova,/etc/neutron]
+control-1:
+    ip: 172.29.74.98
+    user: ubuntu
+    password: CTO1234!
+    role: controller
+    dirlist: [/tmp/keystone,/tmp/nova,/tmp/neutron]
+control-2:
+    ip: 172.31.231.59
+    user: root
+    password: cisco123
+    role: controller
+    dirlist: [/etc/my.cnf,/etc/my.cnf.d/,/var/lib/mysql/,/var/log/mariadb/mariadb.log,/var/run/mariadb/mariadb.pid]

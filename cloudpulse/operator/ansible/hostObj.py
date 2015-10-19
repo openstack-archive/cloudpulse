@@ -14,15 +14,23 @@
 # under the License.
 
 
-class openstack_node_obj(object):
+class HostObject(object):
 
-    def __init__(self, host, ip, user, role, name):
+    def __init__(self, host, ip, user, password, role, name, isNagios=False):
         self.host = host
         self.ip = ip
         self.user = user
-        # self.password = password
+        self.password = password
+        self.isNagios = isNagios
         self.role = role
         self.name = name
+        self.dirlist = []
+
+    def setNagios(self, isNagios):
+        self.isNagios = isNagios
+
+    def isNagiosRunning(self):
+        return self.isNagios
 
     def getHost(self):
         return self.host
@@ -33,11 +41,17 @@ class openstack_node_obj(object):
     def getUser(self):
         return self.user
 
-    # def getPassword(self):
-    #     return self.password
+    def getPassword(self):
+        return self.password
 
     def getRole(self):
         return self.role
 
     def getName(self):
         return self.name
+
+    def setDirList(self, dir_list):
+        self.dirlist = dir_list
+
+    def getDirList(self):
+        return self.dirlist
