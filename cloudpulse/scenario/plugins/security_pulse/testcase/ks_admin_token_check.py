@@ -16,6 +16,7 @@
 from __future__ import print_function
 import cloudpulse
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
+import json
 import os
 
 TMP_LOCATION = "/tmp/sec_hc/"
@@ -30,24 +31,21 @@ class ks_admin_token_check(object):
         if perform_on is None or not perform_on:
             print ("Perform on should be mentioned either at \
                     test level or test case level")
-            return
+            msg = {
+                'Message': 'Perform on should be mentioned either ' +
+                'at test level or test case level'}
+            return (404, json.dumps([msg]), [])
         os_hostobj_list = input_params['os_host_list']
         base_dir = os.path.dirname(cloudpulse.__file__)
         flist = [base_dir +
                  "/scenario/plugins/security_pulse/testcase/" +
                  "keystone_admin_token_check.py"]
         ans_runner = ansible_runner(os_hostobj_list)
-        ans_runner.execute_cmd("python " + TMP_LOCATION +
-                               "keystone_admin_token_check.py " +
-                               TMP_LOCATION, file_list=flist)
-        result = ans_runner.get_results()
-        if not result:
-            return result
-        result_row = []
-        for key in result.keys():
-            obj = eval(result[key])
-            for r in obj:
-                result = r.split(" - ")
-                result_row.append([result[0], result[1], result[2]])
+        result = ans_runner.execute_cmd(
+            "python " +
+            TMP_LOCATION +
+            "keystone_admin_token_check.py ",
+            file_list=flist)
+        Result = ans_runner.get_parsed_ansible_output(result)
         os.system('rm -rf ' + file_info_dir + 'output')
-        return result_row
+        return Result

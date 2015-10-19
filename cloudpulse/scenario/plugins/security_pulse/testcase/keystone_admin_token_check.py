@@ -18,53 +18,99 @@ import os
 
 
 class keystone_admin_token_check(object):
+
     def __init__(self):
         pass
 
     def keystone_admin_token_test(self):
         ks_conf_file = "/etc/keystone/keystone.conf"
-        result = []
+        output = []
+        Result = {}
+        final_result = {}
+        overall_status = True
         config = ConfigParser.ConfigParser()
         if os.path.exists(ks_conf_file):
             try:
                 config.read(ks_conf_file)
             except Exception:
-                result.append("admin_token - keystone.conf not found - Fail")
+                msg = {
+                    'Test Case Name': 'Admin Token',
+                    'Message': 'keystone.conf not found',
+                    'Status': 'Fail'}
+                Result.update(msg)
+                overall_status = False
             else:
                 try:
                     config.get("DEFAULT", "admin_token")
                 except ConfigParser.NoOptionError:
-                    result.append("admin_token - Not defined - Pass")
+                    msg = {
+                        'Test Case Name': 'Admin Token',
+                        'Message': 'Admin Token is not defined',
+                        'Status': 'Pass'}
+                    Result.update(msg)
                 else:
-                    result.append("admin_token - Defined - Fail")
+                    msg = {
+                        'Test Case Name': 'Admin Token',
+                        'Message': 'Admin Token is defined',
+                        'Status': 'Fail'}
+                    Result.update(msg)
+                    overall_status = False
         else:
-            result.append("admin_token - keystone.conf not found - Fail")
-
+            msg = {
+                'Test Case Name': 'Admin Token',
+                'Message': 'keystone.conf not found',
+                'Status': 'Fail'}
+            Result.update(msg)
+            overall_status = False
+        output.append(Result)
+        Result = {}
         ks_paste_conf_file = "/etc/keystone/keystone-paste.ini"
         if os.path.exists(ks_paste_conf_file):
             try:
                 config.read(ks_paste_conf_file)
             except Exception:
-                result.append("admin_auth_token - keystone-paste.ini not " +
-                              "found - Pass")
+                msg = {
+                    'Test Case Name': 'Admin Token AuthMiddleware',
+                    'Message': 'keystone-paste.ini not found',
+                    'Status': 'Pass'}
+                Result.update(msg)
             else:
                 try:
                     config.get("filter:admin_token_auth",
                                "paste.filter_factory")
                 except (ConfigParser.NoOptionError,
                         ConfigParser.NoSectionError):
-                    result.append("admin_auth_token - Not defined - Pass")
+                    msg = {
+                        'Test Case Name': 'Admin Token AuthMiddleware',
+                        'Message': 'admin_auth_token not defined',
+                        'Status': 'Pass'}
+                    Result.update(msg)
                 else:
                     option = config.get("filter:admin_token_auth",
                                         "paste.filter_factory")
                     if "AdminTokenAuthMiddleware" in option:
-                        result.append("admin_auth_token - Defined - Fail")
+                        msg = {
+                            'Test Case Name': 'Admin Token AuthMiddleware',
+                            'Message': 'admin_auth_token defined',
+                            'Status': 'Fail'}
+                        Result.update(msg)
+                        overall_status = False
                     else:
-                        result.append("admin_auth_token - Not Defined - Pass")
+                        msg = {
+                            'Test Case Name': 'Admin Token AuthMiddleware',
+                            'Message': 'admin_auth_token not defined',
+                            'Status': 'Pass'}
+                        Result.update(msg)
         else:
-            result.append("admin_auth_token - keystone-paste.ini not found " +
-                          "- Pass")
-        print (result)
+            msg = {
+                'Test Case Name': 'Admin Token AuthMiddleware',
+                'Message': 'keystone-paste.ini not found',
+                'Status': 'Pass'}
+            Result.update(msg)
+        output.append(Result)
+        final_result.update({'OverallStatus': overall_status})
+        final_result.update({'result': output})
+        print (final_result)
 
 if __name__ == '__main__':
     keystone_admin_token_check_obj = keystone_admin_token_check()
