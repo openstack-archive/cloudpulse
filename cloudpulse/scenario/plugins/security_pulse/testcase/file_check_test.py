@@ -65,7 +65,6 @@ class SecurityFileCheck(object):
                     ans_runner = ansible_runner([obj])
                     if obj.getRole() == p:
                         os_dir = input_params[p + '_dir']
-                        # self.createDirList(os_dir, file_info_dir)
                         all_baseline = eval(open(baseline_file).read())
                         baseline = all_baseline[p]
                         open(
