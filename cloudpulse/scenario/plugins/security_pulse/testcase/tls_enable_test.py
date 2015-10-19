@@ -15,6 +15,7 @@
 
 import cloudpulse
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
+import json
 import os
 
 TMP_LOCATION = "/tmp/sec_hc/"
@@ -29,20 +30,20 @@ class tls_enablement_test(object):
         if perform_on is None or not perform_on:
             print ("Perform on should be mentioned either at test level " +
                    "or test case level")
-            return
+            msg = {
+                'Message': 'Perform on should be mentioned either at test ' +
+                'level or test case level'}
+            return (404, json.dumps([msg]), [])
         os_hostobj_list = input_params['os_host_list']
         base_dir = os.path.dirname(cloudpulse.__file__)
         flist = [base_dir + "/scenario/plugins/security_pulse" +
                  "/testcase/TLS_Enablement_Check.py"]
-        # print os_hostobj_list
         ans_runner = ansible_runner(os_hostobj_list)
-        ans_runner.execute_cmd("python " + TMP_LOCATION +
-                               "TLS_Enablement_Check.py " +
-                               TMP_LOCATION, file_list=flist)
-        result = ans_runner.get_results()
-        if not result:
-            return result
-
+        result = ans_runner.execute_cmd(
+            "python " +
+            TMP_LOCATION +
+            "TLS_Enablement_Check.py ",
+            file_list=flist)
+        Result = ans_runner.get_parsed_ansible_output(result)
         os.system('rm -rf ' + file_info_dir + 'output')
-        for key in result.keys():
-            return result[key]
+        return Result
