@@ -21,19 +21,39 @@ import stat
 
 
 class tls_enable_check(object):
+
     def __init__(self):
         pass
 
     def read_tls_config(self, config):
+        Result = {}
+        final_result = {}
+        overall_status = True
         try:
             config.get("ldap", "use_tls")
         except ConfigParser.NoOptionError:
-            print ("Fail - use_tls option is not enabled")
+            overall_status = False
+            final_result.update({'OverallStatus': overall_status})
+            msg = {
+                'Test Case Name': 'TLS',
+                'Message': 'use_tls option is not enabled',
+                'Status': 'Fail'}
+            Result.update(msg)
+            final_result.update({'result': [Result]})
+            print (final_result)
             return
         else:
             use_tls = config.get("ldap", "use_tls")
             if use_tls == 'false':
-                print ("Fail - use_tls option is enabled with 'false' value")
+                overall_status = False
+                final_result.update({'OverallStatus': overall_status})
+                msg = {
+                    'Test Case Name': 'TLS',
+                    'Message': "use_tls option is enabled with 'false' value",
+                    'Status': 'Fail'}
+                Result.update(msg)
+                final_result.update({'result': [Result]})
+                print (final_result)
                 return
             elif use_tls == 'true':
                 ca_dir = None
@@ -44,12 +64,28 @@ class tls_enable_check(object):
                         tls_ca_file = config.get("ldap", "tls_cacertfile")
                         ca_dir = tls_ca_file[:tls_ca_file.rindex('/')]
                     except ConfigParser.NoOptionError:
-                        print ("Fail - Both 'tls_ca_dir' and " +
-                               "'tls_ca_file' are not defined")
+                        overall_status = False
+                        final_result.update({'OverallStatus': overall_status})
+                        msg = {
+                            'Test Case Name': 'TLS',
+                            'Message': "Both 'tls_ca_dir' and" +
+                            " 'tls_ca_file' are not defined",
+                            'Status': 'Fail'}
+                        Result.update(msg)
+                        final_result.update({'result': [Result]})
+                        print (final_result)
                         return
                 if not ca_dir:
-                    print ("Fail - Both 'tls_ca_dir' and " +
-                           "'tls_ca_file' are not defined")
+                    overall_status = False
+                    final_result.update({'OverallStatus': overall_status})
+                    msg = {
+                        'Test Case Name': 'TLS',
+                        'Message': "Both 'tls_ca_dir' and" +
+                        " 'tls_ca_file' are not defined",
+                        'Status': 'Fail'}
+                    Result.update(msg)
+                    final_result.update({'result': [Result]})
+                    print (final_result)
                     return
                 else:
                     for dirName, subdirList, fileList in os.walk(ca_dir):
@@ -58,14 +94,30 @@ class tls_enable_check(object):
                             st = os.stat(f1)
                             user = pwd.getpwuid(st[stat.ST_UID])[0]
                             group = pwd.getpwuid(st[stat.ST_GID])[0]
-                            # mode = oct(stat.S_IMODE(st[stat.ST_MODE]))
                             if user != 'keystone' or group != 'keystone':
-                                print ("Fail - Certificate file directory " +
-                                       "user/group permission are user=%s, " +
-                                       "group=%s ", user, group)
+                                msg = "Certificate file directory " + \
+                                    " user/group permission are user=" + user \
+                                    + ", group=" + group
+                                overall_status = False
+                                final_result.update(
+                                    {'OverallStatus': overall_status})
+                                res = {
+                                    'Test Case Name': 'TLS',
+                                    'Message': msg,
+                                    'Status': 'Fail'}
+                                Result.update(res)
+                                final_result.update({'result': [Result]})
+                                print (final_result)
                                 return
-                print ("Success - TLS is enabled and the Certificate file " +
-                       "permissions are 'keystone'")
+                final_result.update({'OverallStatus': overall_status})
+                msg = {
+                    'Test Case Name': 'TLS',
+                    'Message': "TLS is enabled and the Certificate file" +
+                    " permissions are 'keystone'",
+                    'Status': 'Pass'}
+                Result.update(msg)
+                final_result.update({'result': [Result]})
+                print (final_result)
                 return
 
 if __name__ == '__main__':

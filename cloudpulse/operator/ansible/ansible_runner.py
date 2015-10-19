@@ -14,20 +14,22 @@
 # under the License.
 
 from __future__ import print_function
+import ansible.constants as CONST
 import ansible.inventory
 import ansible.runner
+import json
 import os
 
+CONST.HOST_KEY_CHECKING = False
 TMP_LOCATION = "/tmp/sec_hc/"
 
 
 class ansible_runner(object):
 
-    def __init__(self,
-                 os_node_list=[]):
+    def __init__(self, os_node_list=[]):
         self.openstack_node = os_node_list
-        # print self.openstack_node
         self.remote_user = None
+        self.remote_pass = None
         self.inventory = None
 
     def execute_cmd(self, command, file_list=[], ips=[], roles=[]):
@@ -46,26 +48,24 @@ class ansible_runner(object):
             self.inventory = inventory
             for f in file_list:
                 self.copy(f, TMP_LOCATION)
-            out = self.execute(command + " >> " + TMP_LOCATION + "output")
-            print (out)
-            out = self.fetch(TMP_LOCATION + 'output', TMP_LOCATION +
-                             'output', 'no')
+            out = self.execute(command)
             print (out)
             self.execute("rm -rf /tmp/sec_hc/")
-            # print out
+            return out
 
     def set_ansible_inventory(self, inv):
         self.inventory = inv
 
-    def set_credential(self, user):
+    def set_credential(self, user, passwd):
         self.remote_user = user
+        self.remote_pass = passwd
 
     def init_ansible_inventory(self, os_node_list):
         ip_list = []
-        for os_node in self.openstack_node:
+        for os_node in os_node_list:
             ip_list.append(os_node.getIp())
             self.remote_user = os_node.getUser()
-        # print ip_list
+            self.remote_pass = os_node.getPassword()
         inventory = ansible.inventory.Inventory(ip_list)
         return inventory
 
@@ -90,6 +90,7 @@ class ansible_runner(object):
             module_name='copy',
             module_args='src=%s dest=%s' % (src, dest),
             remote_user=self.remote_user,
+            remote_pass=self.remote_pass,
             inventory=self.inventory,
         )
         out = runner.run()
@@ -100,6 +101,7 @@ class ansible_runner(object):
             module_name='fetch',
             module_args='src=%s dest=%s flat=%s' % (src, dest, flat),
             remote_user=self.remote_user,
+            remote_pass=self.remote_pass,
             inventory=self.inventory,
         )
         out = runner.run()
@@ -112,6 +114,7 @@ class ansible_runner(object):
             module_name='shell',
             module_args=command,
             remote_user=self.remote_user,
+            remote_pass=self.remote_pass,
             inventory=self.inventory,
         )
         out = runner.run()
@@ -169,6 +172,61 @@ class ansible_runner(object):
                         results['status_message'] = ''
 
         return (results, failed_hosts)
+
+    def get_parsed_ansible_output(self, output_data):
+        if output_data:
+            return self.get_validated_data(output_data)
+        else:
+            msg = {
+                'Message': 'No result from test execution',
+                'Status': 'Fail'}
+            return (404, json.dumps([msg], []))
+
+    def get_validated_data(self, results):
+        print ("Inside get_validated_data", results)
+        # final_result = {}
+        output = []
+        status = 200  # 'PASS'
+        ###################################################
+        # First validation is to make sure connectivity to
+        # all the hosts was ok.
+        ###################################################
+        if results['dark']:
+            status = 404  # 'FAIL'
+
+        ##################################################
+        # Now look for status 'failed'
+        ##################################################
+        for node in results['contacted'].keys():
+            if 'failed' in results['contacted'][node]:
+                if results['contacted'][node]['failed'] is True:
+                    status = 404  # 'FAIL'
+                    msg = {
+                        'Node': node,
+                        'Status': 'Fail',
+                        'Message': 'Execution failed'}
+                    output.append(msg)
+
+        #################################################
+        # Check for the return code 'rc' for each host.
+        #################################################
+        for node in results['contacted'].keys():
+            rc = results['contacted'][node].get('rc', None)
+            if rc is not None and rc != 0:
+                status = 404  # 'FAIL'
+            node_info = results['contacted'][node]
+            op = eval(node_info.get('stdout'))
+            if not op.get('OverallStatus'):
+                status = 404  # 'FAIL'
+            try:
+                res = op.get('result', [])
+                for tc in res:
+                    tc.update({'Node': node})
+                    output.append(tc)
+            except Exception:
+                print ("Exception while getting the result" +
+                       " from the ansible output")
+        return (status, json.dumps(output), [])
 
 """
 if __name__ == '__main__':
