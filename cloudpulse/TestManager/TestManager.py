@@ -48,6 +48,7 @@ class Periodic_Task(object):
         test['uuid'] = utils.generate_uuid()
         new_test = objects.Cpulse(context, **test)
         with cpulse_lock.thread_lock(new_test, self.conductor_id):
+            LOG.info(('Creating db entry for the test %s') % test['name'])
             new_test.create()
         return new_test
 
@@ -83,6 +84,9 @@ class Periodic_Task(object):
         if self.check_if_already_run(context):
             new_test = self.create_task_entry(context)
             test_manager.run(test=new_test)
+        else:
+            LOG.debug(
+                ('Not running Test as time not elapsed since last test'))
 
 
 class Periodic_TestManager(os_service.Service):
@@ -96,6 +100,8 @@ class Periodic_TestManager(os_service.Service):
             interval, task_name = tasks[key], key
             if int(interval) > 0:
                 period_task = Periodic_Task(task_name)
+                LOG.debug(('Creating timer for %s secs for task %s')
+                          % (str(self.interval_task), task_name))
                 self.tg.add_timer(interval, self.interval_task,
                                   task=period_task)
 
@@ -112,6 +118,8 @@ class TestManager(object):
         discover.import_modules_from_package("cloudpulse.scenario.plugins")
         for scenario_group in discover.itersubclasses(base.Scenario):
             for method in dir(scenario_group):
+                LOG.debug(('Adding test %s from %s') %
+                          (method, scenario_group))
                 scenario = scenario_group()
                 callback = getattr(scenario, method)
                 self.command_ref[method] = callback
@@ -121,7 +129,9 @@ class TestManager(object):
         func = self.command_ref[Test['name']]
         Test['state'] = 'running'
         with cpulse_lock.thread_lock(Test, self.conductor_id):
+            LOG.info(('Updating db entry for the test %s') % Test['name'])
             self.update_test(Test['uuid'], Test)
+        LOG.debug(('Running Test %s') % Test['name'])
         result = func()
         if result[0] == 200:
             Test['state'] = 'success'
@@ -129,19 +139,26 @@ class TestManager(object):
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)
+        LOG.debug(('Test State %s for test %s') %
+                  (Test['state'], Test['name']))
         with cpulse_lock.thread_lock(Test, self.conductor_id):
+            LOG.info(('Updating db entry for the test %s') % Test['name'])
             self.update_test(Test['uuid'], Test)
 
     def run_periodic(self, **kwargs):
         Test = kwargs['test']
         func = self.command_ref[Test['name']]
+        LOG.debug(('Running Periodic Test %s') % Test['name'])
         result = func()
         if result[0] == 200:
             Test['result'] = textwrap.fill(str(result[1]), 40)
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)
+        LOG.debug(('Periodic Test %s for test %s') %
+                  (Test['state'], Test['name']))
         with cpulse_lock.thread_lock(Test, self.conductor_id):
+            LOG.info(('Updating db entry for the test %s') % Test['name'])
             self.update_test(Test['uuid'], Test)
 
     def update_test(self, tuuid, patch):
