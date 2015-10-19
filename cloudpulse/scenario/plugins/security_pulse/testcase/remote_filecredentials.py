@@ -14,30 +14,26 @@
 # under the License.
 
 
-class openstack_node_obj(object):
+class AccessPreveliges(object):
 
-    def __init__(self, host, ip, user, password, role, name):
-        self.host = host
-        self.ip = ip
-        self.user = user
-        self.password = password
-        self.role = role
+    def __init__(self, name=None, size=None, mode=None, user=None, group=None):
         self.name = name
-
-    def getHost(self):
-        return self.host
-
-    def getIp(self):
-        return self.ip
-
-    def getUser(self):
-        return self.user
-
-    def getPassword(self):
-        return self.password
-
-    def getRole(self):
-        return self.role
+        self.size = str(size)
+        self.mode = mode
+        self.user = user
+        self.group = group
 
     def getName(self):
         return self.name
+
+    def getSize(self):
+        return self.size
+
+    def getMode(self):
+        return self.mode
+
+    def getUser(self):
+        return self.user[0]
+
+    def getGroup(self):
+        return self.group[0]

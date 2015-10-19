@@ -9,6 +9,7 @@ securityhealth:
       input:
         conf_file: [/etc/keystone/keystone.conf]
     filepermission:
+      perform_on: [controller]
       input:
         baseline_file: /tmp/sec_hc/os_allnode_baseline
         controller_dir: [/etc/keystone,/etc/nova,/etc/neutron]
@@ -52,3 +53,9 @@ securityhealth:
           ServerTokens: Prod
           ServerSignature: off
           TraceEnable: off
+  mysql:
+    perform_on: [controller]
+    testcase: [mysql_tls_enablement_test,mysql_filecheck_test]
+    mysql_tls_enablement_test:
+      perform_on: [controller]
+      input:
