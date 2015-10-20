@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use http://github.com/stackforge/cloudpulse in a project::
+To use https://github.com/openstack/cloudpulse in a project::
 
     import cloudpulse
