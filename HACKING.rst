@@ -1,4 +1,4 @@
-http://github.com/stackforge/cloudpulse Style Commandments
+http://github.com/openstack/cloudpulse Style Commandments
 ===============================================
 
 Read the OpenStack Style Commandments http://docs.openstack.org/developer/hacking/

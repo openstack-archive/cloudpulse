@@ -13,4 +13,4 @@ Pull requests submitted through GitHub will be ignored.
 
 Bugs should be filed on Launchpad, not GitHub:
 
-   https://bugs.launchpad.net/http://github.com/stackforge/cloudpulse
+   https://bugs.launchpad.net/http://github.com/openstack/cloudpulse
