@@ -42,7 +42,7 @@ class Periodic_Task(object):
 
     def create_task_entry(self, context):
         test = {}
-        test['state'] = 'created'
+        test['state'] = 'scheduled'
         test['testtype'] = 'periodic'
         test['name'] = self.task
         test['uuid'] = utils.generate_uuid()

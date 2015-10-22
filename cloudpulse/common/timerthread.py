@@ -81,7 +81,7 @@ def timerfunc(*args, **kwargs):
     delete_old_entries()
     for test in tests:
         LOG.debug(_LI('Dumping REPFUNCTION %s') % test['uuid'])
-        if test['state'] == 'created' and test['testtype'] == 'manual':
+        if test['state'] == 'scheduled' and test['testtype'] == 'manual':
             methodtocall = getattr(sys.modules[__name__], 'test_run')
             # methodtocall()
             testthr = threading.Thread(name=test['name'],

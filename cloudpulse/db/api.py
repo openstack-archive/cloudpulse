@@ -75,7 +75,7 @@ class Connection(object):
                         {
                          'uuid': utils.generate_uuid(),
                          'name': 'endpoint_functional',
-                         'state': 'created',
+                         'state': 'scheduled',
                          'result': 'pass'
                         }
         :returns: A test.
