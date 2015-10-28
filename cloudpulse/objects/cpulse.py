@@ -117,8 +117,8 @@ class Cpulse(base.CloudpulsePersistentObject, base.CloudpulseObject,
         return test
 
     @base.remotable_classmethod
-    def list(cls, context, limit=None, marker=None,
-             sort_key=None, sort_dir=None, filters=None):
+    def list(cls, context, limit=None, marker=None, sort_key=None,
+             sort_dir=None, filters=None, failed=None, period=None):
         """Return a list of Cpulse objects.
 
         :param context: Security context.
@@ -129,11 +129,10 @@ class Cpulse(base.CloudpulsePersistentObject, base.CloudpulseObject,
         :returns: a list of :class:`Cpulse` object.
 
         """
-        db = cls.dbapi.get_test_list(context, limit=limit,
-                                     marker=marker,
-                                     sort_key=sort_key,
-                                     sort_dir=sort_dir,
-                                     filters=filters)
+        db = cls.dbapi.get_test_list(context, limit=limit, marker=marker,
+                                     sort_key=sort_key, sort_dir=sort_dir,
+                                     filters=filters, failed=failed,
+                                     period=period)
         return Cpulse._from_db_object_list(db, cls, context)
 
     @base.remotable

@@ -22,6 +22,7 @@ from cloudpulse.db.sqlalchemy import models
 from cloudpulse.openstack.common._i18n import _
 from cloudpulse.openstack.common import log
 from cloudpulse.scenario import base
+from datetime import timedelta
 from oslo_config import cfg
 from oslo_db import exception as db_exc
 from oslo_db.sqlalchemy import session as db_session
@@ -125,11 +126,23 @@ class Connection(api.Connection):
 
         return query
 
+    def _add_test_failed_filter(self, query, failed):
+        if failed and failed == 'True':
+            query = query.filter_by(state='failed')
+        return query
+
+    def _add_test_period_filter(self, query, period):
+        if period:
+            query_time = timeutils.utcnow() - timedelta(minutes=period)
+            query = query.filter(models.cpulse.created_at >= query_time)
+        return query
+
     def get_test_list(self, context, filters=None, limit=None, marker=None,
-                      sort_key=None, sort_dir=None):
-        # query = model_query(models.cpulse)
+                      sort_key=None, sort_dir=None, failed=None, period=None):
         query = model_query(models.cpulse)
         query = self._add_tests_filters(query, filters)
+        query = self._add_test_period_filter(query, period)
+        query = self._add_test_failed_filter(query, failed)
         return _paginate_query(models.cpulse, limit, marker,
                                sort_key, sort_dir, query)
 

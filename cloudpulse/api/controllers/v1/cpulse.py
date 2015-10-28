@@ -128,10 +128,9 @@ class cpulseController(rest.RestController):
 
     _custom_actions = {'detail': ['GET']}
 
-    def _get_tests_collection(self, marker, limit,
-                              sort_key, sort_dir, expand=False,
-                              resource_url=None):
-
+    def _get_tests_collection(self, marker, limit, sort_key, sort_dir,
+                              expand=False, resource_url=None, failed=None,
+                              period=None):
         limit = api_utils.validate_limit(limit)
         sort_dir = api_utils.validate_sort_dir(sort_dir)
 
@@ -142,7 +141,8 @@ class cpulseController(rest.RestController):
 
         tests = pecan.request.rpcapi.test_list(pecan.request.context, limit,
                                                marker_obj, sort_key=sort_key,
-                                               sort_dir=sort_dir)
+                                               sort_dir=sort_dir,
+                                               failed=failed, period=period)
 
         return CpulseCollection.convert_with_links(tests, limit,
                                                    url=resource_url,
@@ -150,10 +150,10 @@ class cpulseController(rest.RestController):
                                                    sort_key=sort_key,
                                                    sort_dir=sort_dir)
 
-    @wsme_pecan.wsexpose(CpulseCollection, types.uuid,
-                         types.uuid, int, wtypes.text, wtypes.text)
-    def get_all(self, test_uuid=None, marker=None, limit=None,
-                sort_key='id', sort_dir='asc'):
+    @wsme_pecan.wsexpose(CpulseCollection, types.uuid, types.uuid, int,
+                         wtypes.text, wtypes.text, wtypes.text, int)
+    def get_all(self, test_uuid=None, marker=None, limit=None, sort_key='id',
+                sort_dir='asc', failed=None, period=None):
         """Retrieve a list of tests.
 
         :param marker: pagination marker for large data sets.
@@ -161,8 +161,8 @@ class cpulseController(rest.RestController):
         :param sort_key: column to sort results by. Default: id.
         :param sort_dir: direction to sort. "asc" or "desc". Default: asc.
         """
-        return self._get_tests_collection(marker, limit, sort_key,
-                                          sort_dir)
+        return self._get_tests_collection(marker, limit, sort_key, sort_dir,
+                                          failed=failed, period=period)
 
     @wsme_pecan.wsexpose(Cpulse, types.uuid_or_name)
     def get_one(self, test_ident):
