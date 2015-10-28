@@ -68,9 +68,10 @@ testthreads = []
 
 def delete_old_entries():
     tasks = CONF.periodic_tests
+    num_tests = CONF.database.max_db_entries
     num_range = len([key for key in tasks.keys() if int(tasks[key]) > 0])
     conn = dbapi.get_backend()
-    conn.delete_old_tests(num_range)
+    conn.delete_old_tests(num_range, num_tests)
 
 
 def timerfunc(*args, **kwargs):
