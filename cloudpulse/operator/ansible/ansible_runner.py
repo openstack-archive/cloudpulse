@@ -14,23 +14,27 @@
 # under the License.
 
 from __future__ import print_function
+import ansible.constants as CONST
 import ansible.inventory
 import ansible.runner
+import json
 import os
 
+CONST.HOST_KEY_CHECKING = False
 TMP_LOCATION = "/tmp/sec_hc/"
+
+is_containerized = False
 
 
 class ansible_runner(object):
 
-    def __init__(self,
-                 os_node_list=[]):
+    def __init__(self, os_node_list=[]):
         self.openstack_node = os_node_list
-        # print self.openstack_node
         self.remote_user = None
         self.inventory = None
 
-    def execute_cmd(self, command, file_list=[], ips=[], roles=[]):
+    def execute_cmd(self, command, file_list=[], ips=[], roles=[],
+                    container_name=None):
         inventory = None
         filetered_os_list = []
         if ips:
@@ -44,15 +48,19 @@ class ansible_runner(object):
             inventory = self.init_ansible_inventory(filetered_os_list)
         if inventory:
             self.inventory = inventory
+            if is_containerized:
+                self.execute("mkdir " + TMP_LOCATION,
+                             container_name=container_name)
             for f in file_list:
-                self.copy(f, TMP_LOCATION)
-            out = self.execute(command + " >> " + TMP_LOCATION + "output")
+                self.copy(f, TMP_LOCATION, container_name=container_name)
+            out = self.execute(command, container_name=container_name)
             print (out)
-            out = self.fetch(TMP_LOCATION + 'output', TMP_LOCATION +
-                             'output', 'no')
-            print (out)
-            self.execute("rm -rf /tmp/sec_hc/")
-            # print out
+            # remove the files from containers
+            self.execute("rm -rf /tmp/sec_hc/", container_name=container_name)
+            if is_containerized:
+                # remove the files from host
+                self.execute("rm -rf /tmp/sec_hc/")
+            return out
 
     def set_ansible_inventory(self, inv):
         self.inventory = inv
@@ -62,10 +70,9 @@ class ansible_runner(object):
 
     def init_ansible_inventory(self, os_node_list):
         ip_list = []
-        for os_node in self.openstack_node:
+        for os_node in os_node_list:
             ip_list.append(os_node.getIp())
             self.remote_user = os_node.getUser()
-        # print ip_list
         inventory = ansible.inventory.Inventory(ip_list)
         return inventory
 
@@ -85,7 +92,7 @@ class ansible_runner(object):
                         filetered_list.append(os_node)
         return filetered_list
 
-    def copy(self, src, dest):
+    def copy(self, src, dest, container_name=None):
         runner = ansible.runner.Runner(
             module_name='copy',
             module_args='src=%s dest=%s' % (src, dest),
@@ -93,7 +100,28 @@ class ansible_runner(object):
             inventory=self.inventory,
         )
         out = runner.run()
+        print (out)
+        # copy to container
+        if is_containerized:
+            con_runner = self.container_copy(src, dest, container_name)
+            out1 = con_runner.run()
+            print (out1)
         return out
+
+    def container_copy(self, src, dest, container_name):
+        new_src = TMP_LOCATION + src.split('/')[-1]
+        dest = dest + src.split('/')[-1]
+        cmd = "docker exec -i %s sh -c 'cat > %s' < %s" \
+            % (container_name, dest, new_src)
+        runner = ansible.runner.Runner(
+            module_name='shell',
+            module_args=cmd,
+            remote_user=self.remote_user,
+            # remote_pass=self.remote_pass,
+            inventory=self.inventory,
+        )
+        print (cmd)
+        return runner
 
     def fetch(self, src, dest, flat='yes'):
         runner = ansible.runner.Runner(
@@ -106,7 +134,10 @@ class ansible_runner(object):
         return out
 
     # can perform all shell operations Ex: rm /tmp/output
-    def execute(self, command):
+    def execute(self, command, container_name=None):
+        if is_containerized and container_name:
+            command = 'docker exec %s %s' % (container_name, command)
+
         # print command
         runner = ansible.runner.Runner(
             module_name='shell',
@@ -169,6 +200,61 @@ class ansible_runner(object):
                         results['status_message'] = ''
 
         return (results, failed_hosts)
+
+    def get_parsed_ansible_output(self, output_data):
+        if output_data:
+            return self.get_validated_data(output_data)
+        else:
+            msg = {
+                'message': 'No result from test execution',
+                'status': 'Fail'}
+            return (404, json.dumps([msg], []))
+
+    def get_validated_data(self, results):
+        print ("Inside get_validated_data", results)
+        # final_result = {}
+        output = []
+        status = 200  # 'PASS'
+        ###################################################
+        # First validation is to make sure connectivity to
+        # all the hosts was ok.
+        ###################################################
+        if results['dark']:
+            status = 404  # 'FAIL'
+
+        ##################################################
+        # Now look for status 'failed'
+        ##################################################
+        for node in results['contacted'].keys():
+            if 'failed' in results['contacted'][node]:
+                if results['contacted'][node]['failed'] is True:
+                    status = 404  # 'FAIL'
+                    msg = {
+                        'node': node,
+                        'status': 'Fail',
+                        'message': 'Execution failed'}
+                    output.append(msg)
+
+        #################################################
+        # Check for the return code 'rc' for each host.
+        #################################################
+        for node in results['contacted'].keys():
+            rc = results['contacted'][node].get('rc', None)
+            if rc is not None and rc != 0:
+                status = 404  # 'FAIL'
+            node_info = results['contacted'][node]
+            op = eval(node_info.get('stdout'))
+            if not op.get('OverallStatus'):
+                status = 404  # 'FAIL'
+            try:
+                res = op.get('result', [])
+                for tc in res:
+                    tc.update({'node': node})
+                    output.append(tc)
+            except Exception:
+                print ("Exception while getting the result" +
+                       " from the ansible output")
+        return (status, json.dumps(output), [])
 
 """
 if __name__ == '__main__':
