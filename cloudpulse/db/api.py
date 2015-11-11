@@ -42,7 +42,8 @@ class Connection(object):
 
     @abc.abstractmethod
     def get_test_list(self, context, columns=None, filters=None, limit=None,
-                      marker=None, sort_key=None, sort_dir=None):
+                      marker=None, sort_key=None, sort_dir=None,
+                      failed=None, period=None):
         """Get specific columns for matching tests.
 
         Return a list of the specified columns for all tess that match the

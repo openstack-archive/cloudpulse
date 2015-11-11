@@ -36,8 +36,10 @@ class API(rpc_service.API):
         test.create(cpulse_create_timeout)
         return test
 
-    def test_list(self, context, limit, marker, sort_key, sort_dir):
-        return objects.Cpulse.list(context, limit, marker, sort_key, sort_dir)
+    def test_list(self, context, limit, marker, sort_key, sort_dir,
+                  failed=None, period=None):
+        return objects.Cpulse.list(context, limit, marker, sort_key, sort_dir,
+                                   failed=failed, period=period)
 
     def test_delete(self, context, uuid):
         # return self._call('cpulse_delete', uuid=uuid)
