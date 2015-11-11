@@ -21,7 +21,7 @@ def get_cpulse_test(**kw):
         'id': kw.get('id', 32),
         'uuid': kw.get('uuid', 'e74c40e0-d825-11e2-a28f-0800200c9a66'),
         'name': kw.get('name', 'dummy_cloudtest'),
-        'state': kw.get('state', 'created'),
+        'state': kw.get('state', 'scheduled'),
         'result': kw.get('state', 'success'),
         'testtype': kw.get('testtype', 'periodic'),
         'created_at': kw.get('created_at'),
