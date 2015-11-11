@@ -132,30 +132,20 @@ class TestManager(object):
             LOG.info(('Updating db entry for the test %s') % Test['name'])
             self.update_test(Test['uuid'], Test)
         LOG.debug(('Running Test %s') % Test['name'])
-        result = func()
+
+        try:
+            result = func()
+        except Exception as e:
+            result = [404, str(e)]
+
         if result[0] == 200:
             Test['state'] = 'success'
             Test['result'] = textwrap.fill(str(result[1]), 40)
         else:
             Test['state'] = 'failed'
             Test['result'] = textwrap.fill(str(result[1]), 40)
-        LOG.debug(('Test State %s for test %s') %
-                  (Test['state'], Test['name']))
-        with cpulse_lock.thread_lock(Test, self.conductor_id):
-            LOG.info(('Updating db entry for the test %s') % Test['name'])
-            self.update_test(Test['uuid'], Test)
 
-    def run_periodic(self, **kwargs):
-        Test = kwargs['test']
-        func = self.command_ref[Test['name']]
-        LOG.debug(('Running Periodic Test %s') % Test['name'])
-        result = func()
-        if result[0] == 200:
-            Test['result'] = textwrap.fill(str(result[1]), 40)
-        else:
-            Test['state'] = 'failed'
-            Test['result'] = textwrap.fill(str(result[1]), 40)
-        LOG.debug(('Periodic Test %s for test %s') %
+        LOG.debug(('Test State %s for test %s') %
                   (Test['state'], Test['name']))
         with cpulse_lock.thread_lock(Test, self.conductor_id):
             LOG.info(('Updating db entry for the test %s') % Test['name'])
