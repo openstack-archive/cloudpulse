@@ -266,8 +266,7 @@ class Connection(api.Connection):
             if count == 0:
                 return True
 
-    def delete_old_tests(self, num_range,
-                         num_tests=cfg.CONF.database.max_db_entries):
+    def delete_old_tests(self, num_range, num_tests):
         alltests = _paginate_query(models.cpulse)
         if len(alltests) < num_tests:
             return
