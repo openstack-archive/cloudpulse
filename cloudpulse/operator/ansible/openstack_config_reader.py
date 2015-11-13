@@ -30,7 +30,7 @@ class os_cfg_reader(object):
             return
 
         try:
-            self.hostYamlObj = yaml.load(fp)
+            self.hostYamlObj = yaml.safe_load(fp)
             # print "self.hostYamlObj: ", self.hostYamlObj,
             # dir(self.hostYamlObj)
         except yaml.error.YAMLError as perr:

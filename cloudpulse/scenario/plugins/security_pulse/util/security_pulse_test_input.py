@@ -32,7 +32,7 @@ class security_test_input_reader(object):
             return
 
         try:
-            self.secInputYamlObj = yaml.load(fp)
+            self.secInputYamlObj = yaml.safe_load(fp)
         except yaml.error.YAMLError as perr:
             print ("Error while parsing...%s", perr)
             return

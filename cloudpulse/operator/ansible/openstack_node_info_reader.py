@@ -28,7 +28,7 @@ class openstack_node_info_reader(object):
             print ("Error while opening the file...%s", e)
             return
         try:
-            self.hostYamlObj = yaml.load(fp)
+            self.hostYamlObj = yaml.safe_load(fp)
         except yaml.error.YAMLError as perr:
             print ("Error while parsing...%s", perr)
             return
