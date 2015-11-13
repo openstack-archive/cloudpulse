@@ -18,8 +18,9 @@ response with one formatted so the client can parse it.
 Based on pecan.middleware.errordocument
 """
 
+from defusedxml import ElementTree
 import json
-from xml import etree as et
+# from xml import etree as et
 
 import webob
 
@@ -69,11 +70,11 @@ class ParsableErrorMiddleware(object):
                == 'application/xml'):
                 try:
                     # simple check xml is valid
-                    body = [et.ElementTree.tostring(
-                            et.ElementTree.fromstring('<error_message>'
-                                                      + '\n'.join(app_iter)
-                                                      + '</error_message>'))]
-                except et.ElementTree.ParseError as err:
+                    body = [ElementTree.tostring(
+                            ElementTree.fromstring('<error_message>'
+                                                   + '\n'.join(app_iter)
+                                                   + '</error_message>'))]
+                except ElementTree.ParseError as err:
                     LOG.error(_LE('Error parsing HTTP response: %s'), err)
                     body = ['<error_message>%s' % state['status_code']
                             + '</error_message>']
