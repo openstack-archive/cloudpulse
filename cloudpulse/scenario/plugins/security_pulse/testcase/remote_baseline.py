@@ -52,7 +52,7 @@ class FileTraversal(object):
 
 if __name__ == '__main__':
     # LOG.info('Executing test')
-    file_dir = '/tmp/sec_hc/'
+    file_dir = '/var/sec_hc/'
     dirs = []
     with open(file_dir + 'dir_list') as f:
         dirs = f.read().splitlines()

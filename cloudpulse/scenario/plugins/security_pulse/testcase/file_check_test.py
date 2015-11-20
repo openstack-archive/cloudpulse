@@ -13,12 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import ast
 import cloudpulse
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 import json
 import os
-
-TMP_LOCATION = "/tmp/sec_hc/"
+import subprocess
 
 
 class SecurityFileCheck(object):
@@ -46,18 +46,18 @@ class SecurityFileCheck(object):
                      "remote_file_check.py",
                      base_dir + "/scenario/plugins/security_pulse/testcase/" +
                      "remote_filecredentials.py",
-                     "/tmp/sec_hc/dir_list",
-                     "/tmp/sec_hc/os_baseline"]
+                     file_info_dir + "dir_list",
+                     file_info_dir + "os_baseline"]
 
             def ConsolidateResults(flist, container_name=None):
                 result = ans_runner.execute_cmd(
                     "python " +
-                    TMP_LOCATION +
+                    file_info_dir +
                     "remote_file_check.py ",
                     file_list=flist, container_name=container_name)
                 Result = ans_runner.get_parsed_ansible_output(result)
                 final_status.append(Result[0])
-                final_result.extend(eval(Result[1]))
+                final_result.extend(ast.literal_eval(Result[1]))
                 final_msg.extend(Result[2])
 
             for p in perform_on:
@@ -65,7 +65,8 @@ class SecurityFileCheck(object):
                     ans_runner = ansible_runner([obj])
                     if obj.getRole() == p:
                         os_dir = input_params[p + '_dir']
-                        all_baseline = eval(open(baseline_file).read())
+                        all_baseline = ast.literal_eval(
+                            open(baseline_file).read())
                         baseline = all_baseline[p]
                         open(
                             file_info_dir +
@@ -82,7 +83,10 @@ class SecurityFileCheck(object):
                                 ConsolidateResults(
                                     flist,
                                     container_name=container)
-                                os.system('rm ' + file_info_dir + 'dir_list ')
+                                subprocess.call([
+                                    'rm',
+                                    file_info_dir +
+                                    'dir_list'])
 
                         else:
                             os_dir_list = []
@@ -91,32 +95,32 @@ class SecurityFileCheck(object):
                             self.createDirList(os_dir_list, file_info_dir)
                             # flist.append("/tmp/sec_hc/dir_list")
                             ConsolidateResults(flist)
-            os.system(
-                'rm -rf ' +
+            subprocess.call([
+                'rm', '-rf',
                 file_info_dir +
-                'os_baseline ' +
+                'os_baseline',
                 file_info_dir +
-                'output')
-            os.system(
-                'rm ' +
+                'output'])
+            subprocess.call([
+                'rm',
                 file_info_dir +
-                'dir_list ')
+                'dir_list'])
             if 404 in final_status:
                 return (404, final_result, final_msg)
             else:
                 return (200, final_result, final_msg)
         except Exception as e:
             print ("exception in perform_file_permission_check is--", e)
-            os.system(
-                'rm -rf ' +
+            subprocess.call([
+                'rm', '-rf',
                 file_info_dir +
-                'os_baseline ' +
+                'os_baseline',
                 file_info_dir +
-                'output')
-            os.system(
-                'rm ' +
+                'output'])
+            subprocess.call([
+                'rm',
                 file_info_dir +
-                'dir_list ')
+                'dir_list'])
             print (
                 "Exception occured in executing" +
                 " perform_file_permission_check")
