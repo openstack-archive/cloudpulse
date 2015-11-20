@@ -17,8 +17,9 @@ import cloudpulse
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 import json
 import os
+import subprocess
 
-TMP_LOCATION = "/tmp/sec_hc/"
+TMP_LOCATION = "/var/sec_hc/"
 
 
 class mysql_tls_enablement_test(object):
@@ -49,7 +50,7 @@ class mysql_tls_enablement_test(object):
                 "remote_mysql_tls_enablement_check.py ",
                 file_list=flist, container_name=container_name)
             Result = ans_runner.get_parsed_ansible_output(result)
-            os.system('rm -rf ' + file_info_dir + 'output')
+            subprocess.call(['rm', '-rf', file_info_dir + 'output'])
             return Result
         except Exception as msg:
             print (

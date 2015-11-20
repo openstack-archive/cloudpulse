@@ -21,7 +21,7 @@ import json
 import os
 
 CONST.HOST_KEY_CHECKING = False
-TMP_LOCATION = "/tmp/sec_hc/"
+TMP_LOCATION = "/var/sec_hc/"
 
 is_containerized = False
 
@@ -56,10 +56,10 @@ class ansible_runner(object):
             out = self.execute(command, container_name=container_name)
             print (out)
             # remove the files from containers
-            self.execute("rm -rf /tmp/sec_hc/", container_name=container_name)
+            self.execute("rm -rf /var/sec_hc/", container_name=container_name)
             if is_containerized:
                 # remove the files from host
-                self.execute("rm -rf /tmp/sec_hc/")
+                self.execute("rm -rf /var/sec_hc/")
             return out
 
     def set_ansible_inventory(self, inv):
