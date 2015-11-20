@@ -16,12 +16,10 @@
 from __future__ import print_function
 from cloudpulse import objects
 from cloudpulse.scenario import base
-"""
 from cloudpulse.scenario.plugins.security_pulse.testcase.file_check_test\
     import SecurityFileCheck
 from cloudpulse.scenario.plugins.security_pulse.testcase.\
     ks_admin_token_check import ks_admin_token_check
-"""
 from cloudpulse.scenario.plugins.security_pulse.testcase.log_rotate_test \
     import log_file_rotate_test
 from cloudpulse.scenario.plugins.security_pulse.testcase.logfile_mode_test\
@@ -29,13 +27,13 @@ from cloudpulse.scenario.plugins.security_pulse.testcase.logfile_mode_test\
 """
 from cloudpulse.scenario.plugins.security_pulse.testcase.mysql_db_test\
     import mysql_db_test
+"""
 from cloudpulse.scenario.plugins.security_pulse.testcase.mysql_tls_enable_test\
     import mysql_tls_enablement_test
 from cloudpulse.scenario.plugins.security_pulse.testcase.\
     password_encryption_test import password_encryption_check
 from cloudpulse.scenario.plugins.security_pulse.testcase.tls_enable_test \
     import tls_enablement_test
-"""
 from cloudpulse.scenario.plugins.security_pulse.util import \
     security_pulse_test_util as utils
 import json
@@ -61,61 +59,61 @@ CONF.register_opts(TESTS_OPTS, security_pulse_test_group)
 
 class security_pulse_scenario(base.Scenario):
 
-    # def password_encryption_check(self, *args, **kwargs):
-    #     status, result = utils.check_for_valid_testcase_input_file()
-    #     if status:
-    #         testcase_input_file = result
-    #     else:
-    #         return result
-    #     input_params = utils.get_input_params(
-    #         testcase_input_file, "password_encryption_check")
-    #     pwd_test = password_encryption_check()
-    #     result = pwd_test.perform_password_encryption_test(input_params)
-    #     print ("result from password_encryption_check")
-    #     print (result)
-    #     return result
+    def password_encryption_check(self, *args, **kwargs):
+        status, result = utils.check_for_valid_testcase_input_file()
+        if status:
+            testcase_input_file = result
+        else:
+            return result
+        input_params = utils.get_input_params(
+            testcase_input_file, "password_encryption_check")
+        pwd_test = password_encryption_check()
+        result = pwd_test.perform_password_encryption_test(input_params)
+        print ("result from password_encryption_check")
+        print (result)
+        return result
 
-    # def keystone_tls_check(self, *args, **kwargs):
-    #     status, result = utils.check_for_valid_testcase_input_file()
-    #     if status:
-    #         testcase_input_file = result
-    #     else:
-    #         return result
-    #     input_params = utils.get_input_params(
-    #         testcase_input_file, "tls_enablement_check")
-    #     test = tls_enablement_test()
-    #     result = test.perform_tls_enablement_test(input_params)
-    #     print ("result from keystone_tls_check")
-    #     print (result)
-    #     return result
+    def keystone_tls_check(self, *args, **kwargs):
+        status, result = utils.check_for_valid_testcase_input_file()
+        if status:
+            testcase_input_file = result
+        else:
+            return result
+        input_params = utils.get_input_params(
+            testcase_input_file, "tls_enablement_check")
+        test = tls_enablement_test()
+        result = test.perform_tls_enablement_test(input_params)
+        print ("result from keystone_tls_check")
+        print (result)
+        return result
 
-    # def keystone_admin_token_check(self, *args, **kwargs):
-    #     status, result = utils.check_for_valid_testcase_input_file()
-    #     if status:
-    #         testcase_input_file = result
-    #     else:
-    #         return result
-    #     input_params = utils.get_input_params(
-    #         testcase_input_file, "ks_admin_token_check")
-    #     test = ks_admin_token_check()
-    #     result = test.perform_ks_admin_token_check_test(input_params)
-    #     print ("result from keystone_admin_token_check")
-    #     print (result)
-    #     return result
+    def keystone_admin_token_check(self, *args, **kwargs):
+        status, result = utils.check_for_valid_testcase_input_file()
+        if status:
+            testcase_input_file = result
+        else:
+            return result
+        input_params = utils.get_input_params(
+            testcase_input_file, "ks_admin_token_check")
+        test = ks_admin_token_check()
+        result = test.perform_ks_admin_token_check_test(input_params)
+        print ("result from keystone_admin_token_check")
+        print (result)
+        return result
 
-    # def file_comparision_check(self, *args, **kwargs):
-    #     status, result = utils.check_for_valid_testcase_input_file()
-    #     if status:
-    #         testcase_input_file = result
-    #     else:
-    #         return result
-    #     input_params = utils.get_input_params(
-    #         testcase_input_file, "filepermission")
-    #     test = SecurityFileCheck()
-    #     result = test.perform_file_permission_check(input_params)
-    #     print ("result from file_comparision_check")
-    #     print (result)
-    #     return result
+    def file_comparision_check(self, *args, **kwargs):
+        status, result = utils.check_for_valid_testcase_input_file()
+        if status:
+            testcase_input_file = result
+        else:
+            return result
+        input_params = utils.get_input_params(
+            testcase_input_file, "filepermission")
+        test = SecurityFileCheck()
+        result = test.perform_file_permission_check(input_params)
+        print ("result from file_comparision_check")
+        print (result)
+        return result
 
     def logfile_mode_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
@@ -145,19 +143,19 @@ class security_pulse_scenario(base.Scenario):
         print (result)
         return result
 
-    # def mysql_tsl_check(self, *args, **kwargs):
-    #     status, result = utils.check_for_valid_testcase_input_file()
-    #     if status:
-    #         testcase_input_file = result
-    #     else:
-    #         return result
-    #     input_params = utils.get_input_params(
-    #         testcase_input_file, "mysql_tls_enablement_test")
-    #     test = mysql_tls_enablement_test()
-    #     result = test.perform_mysql_tls_enablement_test(input_params)
-    #     print ("result from mysql_tsl_check")
-    #     print (result)
-    #     return result
+    def mysql_tsl_check(self, *args, **kwargs):
+        status, result = utils.check_for_valid_testcase_input_file()
+        if status:
+            testcase_input_file = result
+        else:
+            return result
+        input_params = utils.get_input_params(
+            testcase_input_file, "mysql_tls_enablement_test")
+        test = mysql_tls_enablement_test()
+        result = test.perform_mysql_tls_enablement_test(input_params)
+        print ("result from mysql_tsl_check")
+        print (result)
+        return result
 
     # def mysql_db_check(self, *args, **kwargs):
     #     status, result = utils.check_for_valid_testcase_input_file()

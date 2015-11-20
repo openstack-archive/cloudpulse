@@ -17,8 +17,9 @@ import cloudpulse
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 import json
 import os
+import subprocess
 
-TMP_LOCATION = "/tmp/sec_hc/"
+TMP_LOCATION = "/var/sec_hc/"
 
 
 class password_encryption_check(object):
@@ -32,7 +33,7 @@ class password_encryption_check(object):
                 print ("Perform on should be mentioned either at test level \
                     or test case level")
                 message = {
-                    'Message': 'Perform on should be mentioned either at \
+                    'message': 'Perform on should be mentioned either at \
                     test level or test case level'}
                 return (404, json.dumps([message]), [])
             os_hostobj_list = input_params['os_host_list']
@@ -46,7 +47,8 @@ class password_encryption_check(object):
                 "remote_password_check.py ",
                 file_list=flist)
             Result = ans_runner.get_parsed_ansible_output(result)
-            os.system('rm -rf ' + file_info_dir + 'output')
+            cmd = ['rm', '-rf', file_info_dir]
+            subprocess.call(cmd)
             return Result
         except Exception as e:
             print (
@@ -54,5 +56,5 @@ class password_encryption_check(object):
                 " perform_password_encryption_test")
             print (Exception, e)
             message = {
-                'Message': 'Test case execution failed due to some exception'}
+                'message': 'Test case execution failed due to some exception'}
             return (404, json.dumps([message]), [])

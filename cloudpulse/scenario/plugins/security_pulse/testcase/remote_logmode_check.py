@@ -25,8 +25,8 @@ class LogModeCheck(object):
             final_result = {}
             overall_status = True
             if dir_list is None or not dir_list:
-                res = {'Message': 'Directory list is empty',
-                       'Status': 'Fail', 'Test Case Name': 'Log Mode Check'}
+                res = {'message': 'Directory list is empty',
+                       'status': 'Fail', 'test_case_name': 'Log Mode Check'}
                 result.append(res)
                 final_result.update(
                     {'OverallStatus': False})
@@ -48,8 +48,8 @@ class LogModeCheck(object):
                             abspath = dirName + "/" + f1
                         case_name = "Debug Mode check for '" + abspath + "'"
                         debug_msg.update(
-                            {'Test Case Name': case_name})
-                        verbose_msg.update({'Test Case Name': "Verbose Mode" +
+                            {'test_case_name': case_name})
+                        verbose_msg.update({'test_case_name': "Verbose Mode" +
                                             " check for '" + abspath + "'"})
                         try:
                             config.read(abspath)
@@ -60,20 +60,20 @@ class LogModeCheck(object):
                         except ConfigParser.NoOptionError as e:
                             msg = 'Debug option is not enabled'
                             debug_msg.update(
-                                {'Message': msg})
-                            debug_msg.update({'Status': 'Pass'})
+                                {'message': msg})
+                            debug_msg.update({'status': 'Pass'})
                         else:
                             debug = config.get("DEFAULT", "debug")
                             if debug.lower() == 'false':
                                 msg = "Debug option is enabled with 'false'"
                                 debug_msg.update(
-                                    {'Message': msg})
-                                debug_msg.update({'Status': 'Pass'})
+                                    {'message': msg})
+                                debug_msg.update({'status': 'Pass'})
                             else:
                                 msg = 'Debug option is enabled'
                                 debug_msg.update(
-                                    {'Message': msg})
-                                debug_msg.update({'Status': 'Fail'})
+                                    {'message': msg})
+                                debug_msg.update({'status': 'Fail'})
                                 overall_status = False
                         result.append(debug_msg)
 
@@ -82,20 +82,20 @@ class LogModeCheck(object):
                         except ConfigParser.NoOptionError:
                             msg = 'Verbose option is not enabled'
                             verbose_msg.update(
-                                {'Message': msg})
-                            verbose_msg.update({'Status': 'Pass'})
+                                {'message': msg})
+                            verbose_msg.update({'status': 'Pass'})
                         else:
                             verbose = config.get("DEFAULT", "verbose")
                             if verbose.lower() == 'false':
                                 msg = "Verbose option is enabled with 'false'"
                                 verbose_msg.update(
-                                    {'Message': msg})
-                                verbose_msg.update({'Status': 'Pass'})
+                                    {'message': msg})
+                                verbose_msg.update({'status': 'Pass'})
                             else:
                                 msg = 'Verbose option is enabled'
                                 verbose_msg.update(
-                                    {'Message': msg})
-                                verbose_msg.update({'Status': 'Fail'})
+                                    {'message': msg})
+                                verbose_msg.update({'status': 'Fail'})
                                 overall_status = False
                         result.append(verbose_msg)
             final_result.update(
@@ -107,16 +107,16 @@ class LogModeCheck(object):
             final_result.update(
                 {'OverallStatus': False})
             result = {}
-            result.update({'Test Case Name': 'Log Mode Check'})
-            result.update({'Status': 'Fail'})
+            result.update({'test_case_name': 'Log Mode Check'})
+            result.update({'status': 'Fail'})
             result.update(
-                {'Message': 'Exception in log mode check' + str(e)})
+                {'message': 'Exception in log mode check' + str(e)})
             final_result.update({'result': [result]})
             print(final_result)
             return
 
 if __name__ == '__main__':
-    file_dir = '/tmp/sec_hc/'
+    file_dir = '/var/sec_hc/'
     dirs = []
     with open(file_dir + 'dir_list') as f:
         dirs = f.read().splitlines()
