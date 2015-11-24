@@ -28,9 +28,9 @@ class password_encryption_test(object):
             overall_status = False
             final_result.update({'OverallStatus': overall_status})
             msg = {
-                'Test Case Name': 'Hash Algorithm',
-                'Message': 'Hash Algorithm option is commented',
-                'Status': 'Fail'}
+                'test_case_name': 'Hash Algorithm',
+                'message': 'Hash Algorithm option is commented',
+                'status': 'Fail'}
             Result.update(msg)
             final_result.update({'result': [Result]})
             print (final_result)
@@ -44,9 +44,9 @@ class password_encryption_test(object):
                     overall_status = False
                     final_result.update({'OverallStatus': overall_status})
                     msg = {
-                        'Test Case Name': 'Provider option',
-                        'Message': 'Provider option is not enabled',
-                        'Status': 'Fail'}
+                        'test_case_name': 'Provider option',
+                        'message': 'Provider option is not enabled',
+                        'status': 'Fail'}
                     Result.update(msg)
                     final_result.update({'result': [Result]})
                     print (final_result)
@@ -56,13 +56,13 @@ class password_encryption_test(object):
                     if provider == "pki":
                         final_result.update({'OverallStatus': overall_status})
                         msg = {
-                            'Test Case Name': 'Provider option',
-                            'Message': "hash algorithm option enabled " +
+                            'test_case_name': 'Provider option',
+                            'message': "hash algorithm option enabled " +
                             " with value " +
                             algo +
                             " and provider " +
                             "using 'pki' ",
-                            'Status': 'Pass'}
+                            'status': 'Pass'}
                         Result.update(msg)
                         final_result.update({'result': [Result]})
                         print (final_result)
@@ -71,13 +71,13 @@ class password_encryption_test(object):
                         overall_status = False
                         final_result.update({'OverallStatus': overall_status})
                         msg = {
-                            'Test Case Name': 'Provider option',
-                            'Message': "hash algorithm option enabled " +
+                            'test_case_name': 'Provider option',
+                            'message': "hash algorithm option enabled " +
                             " with value " +
                             algo +
                             " and provider " +
                             "using 'uuid' ",
-                            'Status': 'Fail'}
+                            'status': 'Fail'}
                         Result.update(msg)
                         final_result.update({'result': [Result]})
                         print (final_result)
@@ -86,11 +86,11 @@ class password_encryption_test(object):
                 overall_status = False
                 final_result.update({'OverallStatus': overall_status})
                 msg = {
-                    'Test Case Name': 'Provider option',
-                    'Message': "hash algorithm option enabled " +
+                    'test_case_name': 'Provider option',
+                    'message': "hash algorithm option enabled " +
                     " with value " +
                     algo,
-                    'Status': 'Fail'}
+                    'status': 'Fail'}
                 Result.update(msg)
                 final_result.update({'result': [Result]})
                 print (final_result)

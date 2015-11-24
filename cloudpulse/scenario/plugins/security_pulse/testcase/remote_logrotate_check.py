@@ -70,24 +70,24 @@ class LogRotateCheck(object):
                             tmp[cfg_file] = "Config Exists"
                     if cfg_file not in tmp:
                         overall_status = False
-                        res = {'Status': 'Fail'}
+                        res = {'status': 'Fail'}
                         res.update(
-                            {'Test Case Name': case_name})
-                        res.update({'Message': 'No Log Rotation Config Found'})
+                            {'test_case_name': case_name})
+                        res.update({'message': 'No Log Rotation Config Found'})
                         result.append(res)
                     else:
-                        res = {'Status': 'Pass'}
+                        res = {'status': 'Pass'}
                         res.update(
-                            {'Test Case Name': case_name})
-                        res.update({'Message': 'Log Rotation Config Found'})
+                            {'test_case_name': case_name})
+                        res.update({'message': 'Log Rotation Config Found'})
                         result.append(res)
                 else:
                     # tmp[cfg_file] = "Log file doesn't exists"
                     overall_status = False
-                    res = {'Status': 'Fail'}
+                    res = {'status': 'Fail'}
                     res.update(
-                        {'Test Case Name': case_name})
-                    res.update({'Message': "Log file doesnot exists"})
+                        {'test_case_name': case_name})
+                    res.update({'message': "Log file doesnot exists"})
                     result.append(res)
             final_result.update(
                 {'OverallStatus': overall_status})
@@ -98,10 +98,10 @@ class LogRotateCheck(object):
             final_result.update(
                 {'OverallStatus': False})
             result = {}
-            result.update({'Test Case Name': 'Log Rotate Check'})
-            result.update({'Status': 'Fail'})
+            result.update({'test_case_name': 'Log Rotate Check'})
+            result.update({'status': 'Fail'})
             result.update(
-                {'Message': 'Exception in log rotate check'})
+                {'message': 'Exception in log rotate check'})
             final_result.update({'result': [result]})
             print(final_result)
             return
