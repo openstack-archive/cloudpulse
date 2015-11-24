@@ -17,11 +17,27 @@ from __future__ import print_function
 import ansible.constants as CONST
 import ansible.inventory
 import ansible.runner
+import cloudpulse
+from cloudpulse.scenario.plugins.security_pulse.util.\
+    security_pulse_test_input import security_test_input_reader
 import json
 import os
 
+
+def get_temp_path():
+    base_dir = os.path.dirname(cloudpulse.__file__)
+    try:
+        config_file = base_dir + '/scenario/plugins/security_pulse/config/' +\
+            'securityhealth_test_input.yaml'
+        input_reader = security_test_input_reader(config_file)
+        input_data = input_reader.process_security_input_file()
+        return input_data['global_data']['file_info_dir']
+    except Exception:
+        print ("Exception while getting temp path..")
+        return "/var/sec_hc/"
+
 CONST.HOST_KEY_CHECKING = False
-TMP_LOCATION = "/tmp/sec_hc/"
+TMP_LOCATION = get_temp_path()
 
 is_containerized = False
 
@@ -56,10 +72,11 @@ class ansible_runner(object):
             out = self.execute(command, container_name=container_name)
             print (out)
             # remove the files from containers
-            self.execute("rm -rf /tmp/sec_hc/", container_name=container_name)
+            self.execute("rm -rf " + TMP_LOCATION,
+                         container_name=container_name)
             if is_containerized:
                 # remove the files from host
-                self.execute("rm -rf /tmp/sec_hc/")
+                self.execute("rm -rf " + TMP_LOCATION)
             return out
 
     def set_ansible_inventory(self, inv):

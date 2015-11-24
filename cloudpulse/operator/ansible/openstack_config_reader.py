@@ -68,7 +68,7 @@ class os_cfg_reader(object):
             print ("NAGIOS RUNNING - %s" % (str(hostObj.isNagiosRunning())))
 
     def generate_ansible_config(self, os_obj_list):
-        f = open('/tmp/sec_hc/ansible_hosts', 'w+')
+        f = open('/var/sec_hc/ansible_hosts', 'w+')
         for obj in os_obj_list:
             # print obj.getName()
             f.write('[' + obj.getName() + ']\n')

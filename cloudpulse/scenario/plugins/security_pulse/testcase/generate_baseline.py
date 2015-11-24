@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import ast
 import cloudpulse
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 from cloudpulse.operator.ansible import openstack_config_reader as os_cfg
@@ -31,7 +32,7 @@ class BaseLine(object):
             openstack_host_list = oscfg_reader.get_host_list()
             baseline_data = {}
             for host in openstack_host_list:
-                f = open('/tmp/sec_hc/dir_list', 'w+')
+                f = open('/var/sec_hc/dir_list', 'w+')
                 for dir_name in host.getDirList():
                     f.write(dir_name + '\n')
                 f.close()
@@ -41,11 +42,11 @@ class BaseLine(object):
                 base_dir += '/scenario/plugins/security_pulse/testcase'
                 flist = [base_dir + '/remote_baseline.py',
                          base_dir + '/remote_filecredentials.py',
-                         '/tmp/sec_hc/dir_list'
+                         '/var/sec_hc/dir_list'
                          ]
                 results = ans_runner.execute_cmd(
                     "python " +
-                    '/tmp/sec_hc/' +
+                    '/var/sec_hc/' +
                     "remote_baseline.py ",
                     file_list=flist)
                 # for node in results['contacted'].keys():
@@ -53,10 +54,10 @@ class BaseLine(object):
                 node = host.getIp()
                 data = results['contacted'][node]['stdout']
 
-                baseline_data.update({role: eval(data)})
+                baseline_data.update({role: ast.literal_eval(data)})
                 print (baseline_data)
             formated_data = json.dumps(baseline_data, indent=4)
-            open('/tmp/sec_hc/os_allnode_baseline',
+            open('/var/sec_hc/os_allnode_baseline',
                  'w+').write(str(formated_data))
         except Exception as e:
             print (e)

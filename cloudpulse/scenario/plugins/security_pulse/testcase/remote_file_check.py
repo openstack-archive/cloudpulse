@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import ast
 import os
 import pwd
 import remote_filecredentials as filecredentials
@@ -51,7 +52,8 @@ class FileCheck(object):
                                     'mode': ins.getMode(),
                                     'user': ins.getUser(),
                                     'group': ins.getGroup()}})
-            keystone_baseline = eval(open(file_dir + 'os_baseline').read())
+            keystone_baseline = ast.literal_eval(
+                open(file_dir + 'os_baseline').read())
             remote_mismatch = list(set(output.keys()).
                                    difference(keystone_baseline.keys()))
             baseline_mismatch = list(set(keystone_baseline.keys()).
@@ -74,29 +76,29 @@ class FileCheck(object):
                             ' in remote')
                     msg = string.join(l, ', ')
                     if msg:
-                        temp = {'Test Case Name': key, 'Status': 'Fail'}
-                        temp.update({'Message': msg})
+                        temp = {'test_case_name': key, 'Status': 'Fail'}
+                        temp.update({'message': msg})
                         result.append(temp)
             if baseline_mismatch:
                 for item in baseline_mismatch:
                     msg = 'File not found in remote'
-                    temp = {'Test Case Name': item, 'Status': 'Fail'}
-                    temp.update({'Message': msg})
+                    temp = {'test_case_name': item, 'Status': 'Fail'}
+                    temp.update({'message': msg})
                     result.append(temp)
             if remote_mismatch:
                 for item in remote_mismatch:
                     msg = 'New file found in remote'
-                    temp = {'Test Case Name': item, 'Status': 'Fail'}
-                    temp.update({'Message': msg})
+                    temp = {'test_case_name': item, 'Status': 'Fail'}
+                    temp.update({'message': msg})
                     result.append(temp)
             if not result:
                 overall_status = True
                 final_result.update(
                     {'OverallStatus': overall_status})
                 result = {}
-                result.update({'Test Case Name': 'File permission Check'})
-                result.update({'Status': 'Pass'})
-                result.update({'Message': 'No mismatch'})
+                result.update({'test_case_name': 'File permission Check'})
+                result.update({'status': 'Pass'})
+                result.update({'message': 'No mismatch'})
                 final_result.update({'result': [result]})
                 print (final_result)
                 return
@@ -110,16 +112,16 @@ class FileCheck(object):
             final_result.update(
                 {'OverallStatus': False})
             result = {}
-            result.update({'Test Case Name': 'File permission Check'})
-            result.update({'Status': 'Fail'})
+            result.update({'test_case_name': 'File permission Check'})
+            result.update({'status': 'Fail'})
             result.update(
-                {'Message': 'Exception in file comparision' + str(e)})
+                {'message': 'Exception in file comparision' + str(e)})
             final_result.update({'result': [result]})
             print (final_result)
             return
 
 if __name__ == '__main__':
-    file_dir = '/tmp/sec_hc/'
+    file_dir = '/var/sec_hc/'
     dirs = []
     with open(file_dir + 'dir_list') as f:
         dirs = f.read().splitlines()
