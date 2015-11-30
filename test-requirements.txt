@@ -4,6 +4,7 @@
 
 hacking<0.11,>=0.10.0
 
+bandit
 coverage>=3.6
 discover
 python-subunit>=0.0.18
