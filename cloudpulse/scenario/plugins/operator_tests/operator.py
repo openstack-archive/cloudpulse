@@ -88,21 +88,21 @@ class operator_scenario(base.Scenario):
             node_status_string = node_status.replace('\n', '')
 
             nodes = []
-            running_nodes = []
+            running = []
             mathobj = re.search(
                 r'nodes,\[{disc,\[(.*?)\]', node_status_string, re.M | re.I)
             if mathobj:
-                nodes = [x.rstrip("'").lstrip("'")
+                nodes = [x.rstrip("'").lstrip("'").rstrip(" ").lstrip(" ")
                          for x in mathobj.group(1).split(",")]
 
             mathobj = re.search(
                 r'running_nodes,\[(.*?)\]}', node_status_string, re.M | re.I)
 
             if mathobj:
-                running_nodes = [x.rstrip("'").lstrip("'")
-                                 for x in mathobj.group(1).split(",")]
+                running = [x.rstrip("'").lstrip("'").rstrip(" ").lstrip(" ")
+                           for x in mathobj.group(1).split(",")]
 
-            diffnodes = list(set(nodes) - set(running_nodes))
+            diffnodes = list(set(nodes) - set(running))
             if diffnodes:
                 return(404, ("Failed Nodes : %s" %
                              str(diffnodes)))
