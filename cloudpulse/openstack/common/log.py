@@ -634,6 +634,17 @@ class ContextFormatter(logging.Formatter):
         # NOTE(jecarey): If msg is not unicode, coerce it into unicode
         #                before it can get to the python logging and
         #                possibly cause string encoding trouble
+        # NOTE(anand1712): If the msg has value which should not be printed we
+        #                  remove it from here
+        if(record.name == "wsme.api"):
+            if 'Client-side error: Invalid input for field/attribute name' in record.msg:
+                matchObj = re.match( r'(.*?)\.(.*?)\.(.*?$)', record.msg, re.M|re.I)
+                if matchObj:
+                    record.msg = "Client-side error: Invalid input for field/attribute name.."
+                    record.msg += matchObj.group(3)
+                else:
+                    record.msg = "Client-side error: Invalid input for field/attribute name"
+
         if not isinstance(record.msg, six.text_type):
             record.msg = six.text_type(record.msg)
 
