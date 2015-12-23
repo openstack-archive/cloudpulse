@@ -57,7 +57,11 @@ class Periodic_Task(object):
         task_interval = int(tasks[self.task])
         filters = {}
         filters['name'] = self.task
-        tests = objects.Cpulse.list(context, filters=filters)
+        try:
+            tests = objects.Cpulse.list(context, filters=filters)
+        except Exception as e:
+            LOG.debug("Unable to get last run time of tests %s" % str(e))
+            return False
         if tests:
             lasttest = objects.Cpulse.list(context, filters=filters)[-1]
             lastime = lasttest['created_at']
@@ -158,7 +162,10 @@ class TestManager(object):
         npatch['name'] = patch['name']
         npatch['result'] = patch['result']
         conn = dbapi.get_backend()
-        conn.update_test(tuuid, npatch)
+        try:
+            conn.update_test(tuuid, npatch)
+        except Exception as e:
+            LOG.debug("Unable to update test because of exception %s" % str(e))
         return npatch
 
 test_manager = TestManager()
