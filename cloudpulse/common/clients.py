@@ -15,10 +15,6 @@ from oslo_config import cfg
 
 from cloudpulse.common import cloudpulse_keystoneclient
 from cloudpulse.openstack.common._i18n import _
-from cloudpulse.openstack.common import log as logging
-
-
-LOG = logging.getLogger(__name__)
 
 
 heat_client_opts = [
