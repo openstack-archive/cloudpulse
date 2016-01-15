@@ -20,7 +20,6 @@ from cloudpulse.common import utils
 from cloudpulse.db import api
 from cloudpulse.db.sqlalchemy import models
 from cloudpulse.openstack.common._i18n import _
-from cloudpulse.openstack.common import log
 from cloudpulse.scenario import base
 from datetime import timedelta
 from oslo_config import cfg
@@ -31,9 +30,6 @@ from oslo_utils import timeutils
 import sqlalchemy.orm.exc
 
 CONF = cfg.CONF
-
-
-LOG = log.getLogger(__name__)
 
 
 _FACADE = None
