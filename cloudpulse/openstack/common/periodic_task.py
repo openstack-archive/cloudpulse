@@ -17,6 +17,7 @@ import random
 import time
 
 from oslo_config import cfg
+from oslo_utils import reflection
 import six
 
 from cloudpulse.openstack.common._i18n import _, _LE, _LI
@@ -200,9 +201,10 @@ class PeriodicTasks(object):
 
     def run_periodic_tasks(self, context, raise_on_error=False):
         """Tasks to be run at a periodic interval."""
+        cls_name = reflection.get_class_name(self, fully_qualified=False)
         idle_for = DEFAULT_INTERVAL
         for task_name, task in self._periodic_tasks:
-            full_task_name = '.'.join([self.__class__.__name__, task_name])
+            full_task_name = '.'.join([cls_name, task_name])
 
             spacing = self._periodic_spacing[task_name]
             last_run = self._periodic_last_run[task_name]
