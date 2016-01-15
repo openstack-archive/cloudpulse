@@ -25,6 +25,7 @@ import uuid
 from keystoneclient import exceptions as keystone_exceptions
 from oslo_config import cfg
 from oslo_utils import excutils
+from oslo_utils import reflection
 import pecan
 import six
 import wsme
@@ -221,7 +222,8 @@ class CloudpulseException(Exception):
         return self.message
 
     def format_message(self):
-        if self.__class__.__name__.endswith('_Remote'):
+        cls_name = reflection.get_class_name(self, fully_qualified=False)
+        if cls_name.endswith('_Remote'):
             return self.args[0]
         else:
             return six.text_type(self)

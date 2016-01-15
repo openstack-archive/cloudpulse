@@ -21,6 +21,7 @@ import json
 from oslo_config import cfg
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import models
+from oslo_utils import reflection
 import six.moves.urllib.parse as urlparse
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declarative_base
@@ -64,13 +65,14 @@ class JsonEncodedType(TypeDecorator):
     impl = TEXT
 
     def process_bind_param(self, value, dialect):
+        cls_name = reflection.get_class_name(self, fully_qualified=False)
         if value is None:
             # Save default value according to current type to keep the
             # interface the consistent.
             value = self.type()
         elif not isinstance(value, self.type):
             raise TypeError("%s supposes to store %s objects, but %s given"
-                            % (self.__class__.__name__,
+                            % (cls_name,
                                self.type.__name__,
                                type(value).__name__))
         serialized_value = json.dumps(value)
