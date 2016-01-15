@@ -17,9 +17,7 @@
 from oslo_versionedobjects import base as ovoo_base
 from oslo_versionedobjects import fields as ovoo_fields
 
-from cloudpulse.openstack.common import log as logging
 
-LOG = logging.getLogger('object')
 remotable_classmethod = ovoo_base.remotable_classmethod
 remotable = ovoo_base.remotable
 
