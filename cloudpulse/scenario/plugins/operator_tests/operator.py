@@ -92,14 +92,14 @@ class operator_scenario(base.Scenario):
             mathobj = re.search(
                 r'nodes,\[{disc,\[(.*?)\]', node_status_string, re.M | re.I)
             if mathobj:
-                nodes = [x.rstrip("'").lstrip("'").rstrip(" ").lstrip(" ")
+                nodes = [x.rstrip(" ").lstrip(" ").rstrip("'").lstrip("'")
                          for x in mathobj.group(1).split(",")]
 
             mathobj = re.search(
                 r'running_nodes,\[(.*?)\]}', node_status_string, re.M | re.I)
 
             if mathobj:
-                running = [x.rstrip("'").lstrip("'").rstrip(" ").lstrip(" ")
+                running = [x.rstrip(" ").lstrip(" ").rstrip("'").lstrip("'")
                            for x in mathobj.group(1).split(",")]
 
             diffnodes = list(set(nodes) - set(running))
