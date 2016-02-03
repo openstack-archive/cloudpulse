@@ -18,21 +18,17 @@ response with one formatted so the client can parse it.
 Based on pecan.middleware.errordocument
 """
 
-from defusedxml import ElementTree
 import json
 # from xml import etree as et
 
-import webob
 
 from cloudpulse.openstack.common._i18n import _
-from cloudpulse.openstack.common._i18n import _LE
-from cloudpulse.openstack.common import log
-
-LOG = log.getLogger(__name__)
 
 
 class ParsableErrorMiddleware(object):
+
     """Replace error body with something the client can parse."""
+
     def __init__(self, app):
         self.app = app
 
@@ -65,23 +61,8 @@ class ParsableErrorMiddleware(object):
 
         app_iter = self.app(environ, replacement_start_response)
         if (state['status_code'] // 100) not in (2, 3):
-            req = webob.Request(environ)
-            if (req.accept.best_match(['application/json', 'application/xml'])
-               == 'application/xml'):
-                try:
-                    # simple check xml is valid
-                    body = [ElementTree.tostring(
-                            ElementTree.fromstring('<error_message>'
-                                                   + '\n'.join(app_iter)
-                                                   + '</error_message>'))]
-                except ElementTree.ParseError as err:
-                    LOG.error(_LE('Error parsing HTTP response: %s'), err)
-                    body = ['<error_message>%s' % state['status_code']
-                            + '</error_message>']
-                state['headers'].append(('Content-Type', 'application/xml'))
-            else:
-                body = [json.dumps({'error_message': '\n'.join(app_iter)})]
-                state['headers'].append(('Content-Type', 'application/json'))
+            body = [json.dumps({'error_message': '\n'.join(app_iter)})]
+            state['headers'].append(('Content-Type', 'application/json'))
             state['headers'].append(('Content-Length', str(len(body[0]))))
         else:
             body = app_iter
