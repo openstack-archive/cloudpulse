@@ -16,6 +16,7 @@ from cloudpulse import objects
 import contextlib
 import logging
 from oslo_utils import excutils
+import time
 
 LOG = logging.getLogger(__name__)
 
@@ -26,13 +27,15 @@ class CpulseLock(object):
         self.cpulse_test = cpulse_test
         self.conductor_id = conductor_id
 
-    def acquire(self, retry=True):
-        lock_conductor_id = objects.CpulseLock.create(self.cpulse_test.name,
-                                                      self.conductor_id)
-        if lock_conductor_id is None:
-            return
-        else:
-            raise exception.TestLocked(uuid=self.cpulse_test.name)
+    def acquire(self, retry=True, times=10):
+        for num in xrange(0, times):
+            lock_id = objects.CpulseLock.create(self.cpulse_test.name,
+                                                self.conductor_id)
+            if lock_id is None:
+                return
+            else:
+                time.sleep(3)
+        raise exception.TestLocked(uuid=self.cpulse_test.name)
 
     def release(self, test_name):
         result = objects.CpulseLock.release(test_name, self.conductor_id)
