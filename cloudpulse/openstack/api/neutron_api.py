@@ -17,6 +17,7 @@ from neutronclient.v2_0 import client as neutron_client
 class NeutronHealth(object):
     def __init__(self, creds):
         creds['timeout'] = 30
+        creds['ca_cert'] = creds['cacert']
         self.neutronclient = neutron_client.Client(**creds)
 
     def neutron_agent_list(self):

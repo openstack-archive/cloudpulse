@@ -49,6 +49,7 @@ CONF.register_opts(TESTS_OPTS, periodic_test_group)
 
 
 class endpoint_scenario(base.Scenario):
+
     def _get_credentials(self):
         importutils.import_module('keystonemiddleware.auth_token')
         creds = {}
@@ -56,6 +57,7 @@ class endpoint_scenario(base.Scenario):
         creds['tenant_name'] = cfg.CONF.keystone_authtoken.project_name
         creds['password'] = cfg.CONF.keystone_authtoken.password
         creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
+        creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
         return creds
 
     def _get_nova_v2_credentials(self):
@@ -66,6 +68,7 @@ class endpoint_scenario(base.Scenario):
         creds['api_key'] = cfg.CONF.keystone_authtoken.password
         creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
         creds['version'] = 2
+        creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
         return creds
 
     @base.scenario(admin_only=False, operator=False)
