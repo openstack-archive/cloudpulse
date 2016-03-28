@@ -645,6 +645,9 @@ class ContextFormatter(logging.Formatter):
                 else:
                     record.msg = "Client-side error: Invalid input for field/attribute name"
 
+        if "keystone_authtoken.password" in record.args:
+            record.args = ("keystone_authtoken.password","****")
+
         if not isinstance(record.msg, six.text_type):
             record.msg = six.text_type(record.msg)
 
