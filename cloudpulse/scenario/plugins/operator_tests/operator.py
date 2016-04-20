@@ -164,6 +164,9 @@ class operator_scenario(base.Scenario):
             else:
                 return (200, "All docker containers are up",
                         ['Docker container Test Passed'])
+        else:
+            return (404, ("Docker Check Failed: %s" %
+                          results['status_message']), [])
 
     @base.scenario(admin_only=False, operator=True)
     def ceph_check(self):
