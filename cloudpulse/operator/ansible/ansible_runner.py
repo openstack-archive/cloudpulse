@@ -192,7 +192,9 @@ class ansible_runner(object):
             if 'failed' in results['contacted'][node]:
                 if results['contacted'][node]['failed'] is True:
                     results['status'] = 'FAIL'
-                    results['status_message'] = ''
+                    results['status_message'] = " ".join(
+                        [("%s -> %s") % (key, results['dark'][key])
+                         for key in results['dark']])
 
         for node in results['contacted'].keys():
             rc = results['contacted'][node].get('rc', None)
