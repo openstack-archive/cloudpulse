@@ -59,6 +59,7 @@ CONF.register_opts(TESTS_OPTS, security_pulse_test_group)
 
 class security_pulse_scenario(base.Scenario):
 
+    @base.scenario(admin_only=False, operator=False)
     def password_encryption_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
@@ -71,6 +72,7 @@ class security_pulse_scenario(base.Scenario):
         result = pwd_test.perform_password_encryption_test(input_params)
         return result
 
+    @base.scenario(admin_only=False, operator=False)
     def keystone_tls_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
@@ -83,6 +85,7 @@ class security_pulse_scenario(base.Scenario):
         result = test.perform_tls_enablement_test(input_params)
         return result
 
+    @base.scenario(admin_only=False, operator=False)
     def keystone_admin_token_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
@@ -95,6 +98,7 @@ class security_pulse_scenario(base.Scenario):
         result = test.perform_ks_admin_token_check_test(input_params)
         return result
 
+    @base.scenario(admin_only=False, operator=False)
     def file_comparision_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
@@ -107,6 +111,7 @@ class security_pulse_scenario(base.Scenario):
         result = test.perform_file_permission_check(input_params)
         return result
 
+    @base.scenario(admin_only=False, operator=False)
     def logfile_mode_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
@@ -119,6 +124,7 @@ class security_pulse_scenario(base.Scenario):
         result = test.perform_log_file_mode_test(input_params)
         return result
 
+    @base.scenario(admin_only=False, operator=False)
     def logfile_rotate_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
@@ -131,6 +137,7 @@ class security_pulse_scenario(base.Scenario):
         result = test.perform_log_file_rotate_test(input_params)
         return result
 
+    @base.scenario(admin_only=False, operator=False)
     def mysql_tsl_check(self, *args, **kwargs):
         status, result = utils.check_for_valid_testcase_input_file()
         if status:
