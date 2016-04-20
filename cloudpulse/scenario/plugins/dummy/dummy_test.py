@@ -27,7 +27,6 @@ CONF.register_opts(TESTS_OPTS, periodic_test_group)
 
 
 class dummy_scenario(base.Scenario):
-    @base.scenario(operator=True)
     def dummy_cloudtest(self, *args, **kwargs):
         return (200, "success", ['dummy_result'])
 

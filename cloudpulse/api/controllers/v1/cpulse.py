@@ -28,6 +28,8 @@ from cloudpulse.api.controllers.v1 import types
 from cloudpulse.api.controllers.v1 import utils as api_utils
 from cloudpulse import objects
 
+from cloudpulse.scenario import base as plugin_base
+
 
 class CpulsePatchType(types.JsonPatchType):
 
@@ -37,6 +39,7 @@ class CpulsePatchType(types.JsonPatchType):
 
 
 class Cpulse(base.APIBase):
+
     """API representation of a test.
 
     This class enforces type checking and value constraints, and converts
@@ -98,6 +101,7 @@ class Cpulse(base.APIBase):
 
 
 class CpulseCollection(collection.Collection):
+
     """API representation of a collection of tests."""
 
     cpulses = [Cpulse]
@@ -122,11 +126,13 @@ class CpulseCollection(collection.Collection):
 
 
 class cpulseController(rest.RestController):
+
     """REST controller for Cpulse.."""
+
     def __init__(self):
         super(cpulseController, self).__init__()
 
-    _custom_actions = {'detail': ['GET']}
+    _custom_actions = {'detail': ['GET'], 'list_tests': ['GET']}
 
     def _get_tests_collection(self, marker, limit, sort_key, sort_dir,
                               expand=False, resource_url=None, failed=None,
@@ -184,6 +190,16 @@ class cpulseController(rest.RestController):
         rpc_test_detail = api_utils.get_rpc_resource_detail('Cpulse',
                                                             test_ident)
         return rpc_test_detail
+
+    @pecan.expose('json')
+    def list_tests(self):
+        """Retrieve list of tests for each scenario.
+
+        :param none: No params needed.
+        """
+        all_tests = plugin_base.Scenario.list_all_scenario_types()
+        all_test_dict = {key: "\n".join(all_tests[key]) for key in all_tests}
+        return all_test_dict
 
     @wsme_pecan.wsexpose(Cpulse, body=Cpulse, status_code=201)
     def post(self, test):
