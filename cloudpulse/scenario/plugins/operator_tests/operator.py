@@ -144,6 +144,25 @@ class operator_scenario(base.Scenario):
                           results['status_message']), [])
 
     @base.scenario(admin_only=False, operator=True)
+    def docker_check(self):
+        self.load()
+        cmd = "docker ps -aq --filter 'status=exited'"
+        out = self.ans_runner.execute(cmd)
+
+        results, failed_hosts = self.ans_runner.validate_results(out)
+        if results['status'] is 'PASS':
+            docker_failed = {key: results['contacted'][key]['stdout']
+                             for key in results['contacted']
+                             if results['contacted'][key]['stdout']}
+            if docker_failed:
+                docker_str = " ".join(["Containers failed in %s : %s" % (
+                    key, docker_failed[key]) for key in docker_failed])
+                return (404, docker_str, [])
+            else:
+                return (200, "All docker containers are up",
+                        ['Docker container Test Passed'])
+
+    @base.scenario(admin_only=False, operator=True)
     def ceph_check(self):
         self.load()
         cmd = (r"ceph -f json status")
