@@ -37,11 +37,13 @@ def scenario(admin_only=False, operator=False, context=None):
 
 
 class Scenario(object):
+
     """This is base class for any benchmark scenario.
 
        You should create subclass of this class. And your test scenarios will
        be auto discoverable and you will be able to specify it in test config.
     """
+
     def __init__(self, context=None, admin_tests=None,
                  tenant_tests=None, operator_tests=None):
         self._admin_tests = admin_tests
@@ -187,6 +189,20 @@ class Scenario(object):
         scenarios_list_flat = list(
             itertools.chain.from_iterable(scenarios_list))
         return scenarios_list_flat
+
+    @classmethod
+    def list_all_scenario_types(scenario_cls):
+        """Lists all the tests in all scenarios."""
+        scenarios = scenario_cls.list_all_scenarios()
+        scenario_dict = {}
+        for scenario in scenarios:
+            testype, test = scenario.split(".")
+            if testype in scenario_dict:
+                scenario_dict[testype].append(test)
+            else:
+                scenario_dict[testype] = []
+                scenario_dict[testype].append(test)
+        return scenario_dict
 
     @classmethod
     def validate(cls, name, config, admin=None, users=None, task=None):
