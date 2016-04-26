@@ -61,7 +61,7 @@ class Cpulse(base.APIBase):
     links = wsme.wsattr([link.Link], readonly=True)
     """A list containing a self link and associated test links"""
 
-    result = wtypes.StringType(min_length=1, max_length=1024)
+    result = wtypes.StringType(min_length=1, max_length=4048)
     """Result of this test"""
 
     testtype = wtypes.StringType(min_length=1, max_length=255)

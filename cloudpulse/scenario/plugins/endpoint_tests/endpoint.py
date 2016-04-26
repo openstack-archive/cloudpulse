@@ -37,7 +37,10 @@ TESTS_OPTS = [
                help='The glance endpoint and interval'),
     cfg.IntOpt('cinder_endpoint',
                default=0,
-               help='The cinder endpoint and interval')
+               help='The cinder endpoint and interval'),
+    cfg.IntOpt('all_endpoint_tests',
+               default=0,
+               help='Run all endpoint tests in interval')
 ]
 
 CONF = cfg.CONF
@@ -101,3 +104,21 @@ class endpoint_scenario(base.Scenario):
         creds = self._get_nova_v2_credentials()
         cinder = CinderHealth(creds)
         return cinder.cinder_list()
+
+    @base.scenario(admin_only=False, operator=False)
+    def all_endpoint_tests(self):
+        test_list = [func for func in dir(self) if base.Scenario.is_scenario(
+            self, func) if not func.startswith(
+            '__') if not func.startswith('all')]
+        result = 200
+        resultmsg = ''
+        for func in test_list:
+            funccall = getattr(self, func)
+            try:
+                funres = funccall()
+            except Exception as e:
+                funres = [404, str(e)]
+            if funres[0] != 200:
+                resultmsg += ("%s failed: %s\n\n" % (func, funres[1]))
+                result = 404
+        return (result, resultmsg)

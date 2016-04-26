@@ -47,7 +47,10 @@ PERIODIC_TESTS_OPTS = [
                help='The ceph periodic check'),
     cfg.IntOpt('docker_check',
                default=0,
-               help='The docker periodic check')
+               help='The docker periodic check'),
+    cfg.IntOpt('all_operator_tests',
+               default=0,
+               help='Run all operator tests')
 ]
 
 CONF = cfg.CONF
@@ -192,3 +195,21 @@ class operator_scenario(base.Scenario):
         else:
             return (404, ("Ceph cluster Test Failed: %s" %
                           results['status_message']), [])
+
+    @base.scenario(admin_only=False, operator=True)
+    def all_operator_tests(self):
+        test_list = [func for func in dir(self) if base.Scenario.is_scenario(
+            self, func) if not func.startswith(
+            '__') if not func.startswith('all')]
+        result = 200
+        resultmsg = ""
+        for func in test_list:
+            funccall = getattr(self, func)
+            try:
+                funres = funccall()
+            except Exception as e:
+                funres = [404, str(e)]
+            if funres[0] != 200:
+                resultmsg += ("%s failed: %s\n" % (func, funres[1]))
+                result = 404
+        return (result, resultmsg)
