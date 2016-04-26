@@ -14,6 +14,21 @@
 from cloudpulse.common import exception
 from cloudpulse.common.plugin import discover
 import itertools
+from oslo_config import cfg
+
+CONF = cfg.CONF
+
+SCENARIO_OPTS = [
+    cfg.ListOpt('enabled_scenarios',
+                default=['endpoint_scenario'],
+                help="List of scenarios which need to be enabled")
+]
+
+
+scenario_group = cfg.OptGroup(
+    name='scenario', title='List of enabled scenarios')
+CONF.register_group(scenario_group)
+CONF.register_opts(SCENARIO_OPTS, scenario_group)
 
 
 def scenario(admin_only=False, operator=False, context=None):
@@ -179,12 +194,14 @@ class Scenario(object):
 
         :returns: List of strings
         """
+        enabled_scenarios = cfg.CONF.scenario.enabled_scenarios
         scenario_classes = (list(discover.itersubclasses(scenario_cls)) +
                             [scenario_cls])
         scenarios_list = [
             ["%s.%s" % (scenario.__name__, func)
              for func in dir(scenario) if Scenario.is_scenario(scenario, func)]
             for scenario in scenario_classes
+            if scenario.__name__ in enabled_scenarios
         ]
         scenarios_list_flat = list(
             itertools.chain.from_iterable(scenarios_list))
