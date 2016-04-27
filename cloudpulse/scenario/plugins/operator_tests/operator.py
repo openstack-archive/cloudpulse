@@ -48,6 +48,9 @@ PERIODIC_TESTS_OPTS = [
     cfg.IntOpt('docker_check',
                default=0,
                help='The docker periodic check'),
+    cfg.IntOpt('node_check',
+               default=0,
+               help='The Node Check peiodic check'),
     cfg.IntOpt('all_operator_tests',
                default=0,
                help='Run all operator tests')
@@ -85,7 +88,7 @@ class operator_scenario(base.Scenario):
             rabbit_container = cfg.CONF.operator_test.rabbit_container
             cmd = ("docker exec %s %s" % (rabbit_container, cmd))
 
-        out = self.ans_runner.execute(cmd)
+        out = self.ans_runner.execute(cmd, roles=['controller'])
         res, output = self.ans_runner.validate_results(out)
 
         if res['status'] is 'PASS':
@@ -133,7 +136,7 @@ class operator_scenario(base.Scenario):
             galera_container = cfg.CONF.operator_test.galera_container
             cmd = ("docker exec %s %s" % (galera_container, cmd))
 
-        out = self.ans_runner.execute(cmd)
+        out = self.ans_runner.execute(cmd, roles=['controller'])
         results, failed_hosts = self.ans_runner.validate_results(out)
 
         if results['status'] is 'PASS':
@@ -175,7 +178,7 @@ class operator_scenario(base.Scenario):
     def ceph_check(self):
         self.load()
         cmd = (r"ceph -f json status")
-        out = self.ans_runner.execute(cmd)
+        out = self.ans_runner.execute(cmd, roles=['controller'])
         results, failed_hosts = self.ans_runner.validate_results(out)
 
         if results['status'] is 'PASS':
@@ -195,6 +198,20 @@ class operator_scenario(base.Scenario):
         else:
             return (404, ("Ceph cluster Test Failed: %s" %
                           results['status_message']), [])
+
+    @base.scenario(admin_only=False, operator=True)
+    def node_check(self):
+        self.load()
+        out = self.ans_runner.ping()
+        results, failed_hosts = self.ans_runner.validate_results(out)
+        if results['status'] is 'PASS':
+            return (200, "All nodes are up")
+        else:
+            msg = "Some nodes are not up"
+            if failed_hosts:
+                msg = "The following nodes are not up: %s" % str(
+                    failed_hosts[0])
+            return (404, msg)
 
     @base.scenario(admin_only=False, operator=True)
     def all_operator_tests(self):
