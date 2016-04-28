@@ -229,4 +229,6 @@ class operator_scenario(base.Scenario):
             if funres[0] != 200:
                 resultmsg += ("%s failed: %s\n" % (func, funres[1]))
                 result = 404
+        if not resultmsg:
+            resultmsg = "All Tests passed"
         return (result, resultmsg)
