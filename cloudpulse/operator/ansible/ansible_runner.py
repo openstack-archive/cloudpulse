@@ -104,7 +104,7 @@ class ansible_runner(object):
                         filetered_list.append(os_node)
         elif role_list and self.openstack_node:
             for role in role_list:
-                for os_node in self.self.openstack_node:
+                for os_node in self.openstack_node:
                     if role == os_node.getRole():
                         filetered_list.append(os_node)
         return filetered_list
@@ -154,7 +154,11 @@ class ansible_runner(object):
         return out
 
     # can perform all shell operations Ex: rm /tmp/output
-    def execute(self, command, container_name=None):
+    def execute(self, command, container_name=None, roles=[]):
+        filetered_os_list = []
+        if roles:
+            filetered_os_list = self.get_os_node_list(role_list=roles)
+            self.inventory = self.init_ansible_inventory(filetered_os_list)
         if is_containerized and container_name:
             command = 'docker exec %s %s' % (container_name, command)
 
@@ -162,6 +166,20 @@ class ansible_runner(object):
         runner = ansible.runner.Runner(
             module_name='shell',
             module_args=command,
+            remote_user=self.remote_user,
+            inventory=self.inventory,
+            forks=1,
+        )
+        out = runner.run()
+        return out
+
+    def ping(self, container_name=None, roles=[]):
+        filetered_os_list = []
+        if roles:
+            filetered_os_list = self.get_os_node_list(role_list=roles)
+            self.inventory = self.init_ansible_inventory(filetered_os_list)
+        runner = ansible.runner.Runner(
+            module_name='ping',
             remote_user=self.remote_user,
             inventory=self.inventory,
             forks=1,
