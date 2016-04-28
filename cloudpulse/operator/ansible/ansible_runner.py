@@ -115,6 +115,7 @@ class ansible_runner(object):
             module_args='src=%s dest=%s' % (src, dest),
             remote_user=self.remote_user,
             inventory=self.inventory,
+            forks=1,
         )
         out = runner.run()
         print (out)
@@ -136,6 +137,7 @@ class ansible_runner(object):
             remote_user=self.remote_user,
             # remote_pass=self.remote_pass,
             inventory=self.inventory,
+            forks=1,
         )
         print (cmd)
         return runner
@@ -146,6 +148,7 @@ class ansible_runner(object):
             module_args='src=%s dest=%s flat=%s' % (src, dest, flat),
             remote_user=self.remote_user,
             inventory=self.inventory,
+            forks=1,
         )
         out = runner.run()
         return out
@@ -161,6 +164,7 @@ class ansible_runner(object):
             module_args=command,
             remote_user=self.remote_user,
             inventory=self.inventory,
+            forks=1,
         )
         out = runner.run()
         return out
