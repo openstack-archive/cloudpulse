@@ -182,6 +182,7 @@ class ansible_runner(object):
             module_name='ping',
             remote_user=self.remote_user,
             inventory=self.inventory,
+            timeout=30,
             forks=1,
         )
         out = runner.run()
