@@ -19,6 +19,14 @@ class NovaHealth(object):
         creden['timeout'] = 30
         self.novaclient = Client(**creden)
 
+    def nova_hypervisor_list(self):
+        try:
+            hypervisors = self.novaclient.hypervisors.list()
+        except (ClientException, Exception) as e:
+            return (400, e.message, [])
+        hypervisor_names = [node.hypervisor_hostname for node in hypervisors]
+        return (200, "success", hypervisor_names)
+
     def nova_service_list(self):
         try:
             service_list = self.novaclient.services.list()

@@ -11,13 +11,18 @@
 # under the License.
 
 from __future__ import print_function
+from cloudpulse.openstack.api.nova_api import NovaHealth
 from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 from cloudpulse.operator.ansible.openstack_node_info_reader import \
     openstack_node_info_reader
 from cloudpulse.scenario import base
 import json
 from oslo_config import cfg
+from oslo_utils import importutils
 import re
+
+cfg.CONF.import_opt('auth_uri', 'keystonemiddleware.auth_token',
+                    group='keystone_authtoken')
 
 TESTS_OPTS = [
     cfg.StrOpt('operator_setup_file',
@@ -69,6 +74,18 @@ CONF.register_opts(PERIODIC_TESTS_OPTS, periodic_test_group)
 
 
 class operator_scenario(base.Scenario):
+
+    def _get_nova_hypervior_list(self):
+        importutils.import_module('keystonemiddleware.auth_token')
+        creds = {}
+        creds['username'] = cfg.CONF.keystone_authtoken.username
+        creds['project_id'] = cfg.CONF.keystone_authtoken.project_name
+        creds['api_key'] = cfg.CONF.keystone_authtoken.password
+        creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
+        creds['version'] = 2
+        creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
+        nova = NovaHealth(creds)
+        return nova.nova_hypervisor_list()
 
     def load(self):
         self.os_node_info_obj = openstack_node_info_reader(
@@ -202,15 +219,37 @@ class operator_scenario(base.Scenario):
     @base.scenario(admin_only=False, operator=True)
     def node_check(self):
         self.load()
+        nodes_from_ansible_config = [node.name.lower(
+        ) for node in self.os_node_info_obj.get_host_list()
+            if node.role == "compute"]
+        nova_hypervisor_list = self._get_nova_hypervior_list()
+        if nova_hypervisor_list[0] != 200:
+            return (404, ("Cannot get hypervisor list from "
+                          "Nova reason-%sa") % nova_hypervisor_list[1])
+        nodes_from_nova = [node.lower() for node in nova_hypervisor_list[2]]
+        extra_nodes_nova = set(
+            nodes_from_nova) - set(nodes_from_ansible_config)
+        extra_nodes_ansible = set(
+            nodes_from_ansible_config) - set(nodes_from_nova)
+        if extra_nodes_nova:
+            return (404, ("Hypervisors in nova hypervisor list are more"
+                          " than configured.nova hypervisor list = %s") %
+                    nodes_from_nova)
+        if extra_nodes_ansible:
+            return (404, ("Hypervisors in nova hypervisor list are less"
+                          " than configured.nova hypervisor list = %s") %
+                    nodes_from_nova)
         out = self.ans_runner.ping()
         results, failed_hosts = self.ans_runner.validate_results(out)
         if results['status'] is 'PASS':
-            return (200, "All nodes are up")
+            return (200, "All nodes are up.nova hypervisor list = %s" %
+                         nodes_from_nova)
         else:
             msg = "Some nodes are not up"
             if failed_hosts:
-                msg = "The following nodes are not up: %s" % str(
-                    failed_hosts[0])
+                msg = ("The following nodes are not up: %s."
+                       "nova hypervisor list = %s" %
+                       (str(failed_hosts[0]), nodes_from_nova))
             return (404, msg)
 
     @base.scenario(admin_only=False, operator=True)
