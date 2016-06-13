@@ -37,7 +37,9 @@ TESTS_OPTS = [
     cfg.StrOpt('galera_container',
                default='mariadb_v1',
                help='name of the galera cluster container'),
-
+    cfg.StrOpt('ceph_container',
+               default='ceph_v1',
+               help='name of the ceph cluster container'),
 ]
 
 PERIODIC_TESTS_OPTS = [
@@ -195,6 +197,12 @@ class operator_scenario(base.Scenario):
     def ceph_check(self):
         self.load()
         cmd = (r"ceph -f json status")
+
+        is_containerized = cfg.CONF.operator_test.containerized
+        if is_containerized:
+            ceph_container = cfg.CONF.operator_test.ceph_container
+            cmd = ("docker exec %s %s" % (ceph_container, cmd))
+
         out = self.ans_runner.execute(cmd, roles=['controller'])
         results, failed_hosts = self.ans_runner.validate_results(out)
 
