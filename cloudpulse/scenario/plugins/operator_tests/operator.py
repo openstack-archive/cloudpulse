@@ -86,6 +86,7 @@ class operator_scenario(base.Scenario):
         creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
         creds['version'] = 2
         creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
+        creds['endpoint_type'] = 'internalURL'
         nova = NovaHealth(creds)
         return nova.nova_hypervisor_list()
 
