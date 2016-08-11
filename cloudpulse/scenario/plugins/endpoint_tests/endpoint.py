@@ -61,6 +61,7 @@ class endpoint_scenario(base.Scenario):
         creds['password'] = cfg.CONF.keystone_authtoken.password
         creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
         creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
+        creds['endpoint_type'] = 'internalURL'
         return creds
 
     def _get_nova_v2_credentials(self):
@@ -72,6 +73,7 @@ class endpoint_scenario(base.Scenario):
         creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
         creds['version'] = 2
         creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
+        creds['endpoint_type'] = 'internalURL'
         return creds
 
     @base.scenario(admin_only=False, operator=False)
