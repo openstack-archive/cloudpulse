@@ -39,7 +39,13 @@ API_SERVICE_OPTS = [
     cfg.IntOpt('max_limit',
                default=1000,
                help='The maximum number of items returned in a single '
-                    'response from a collection resource.')
+                    'response from a collection resource.'),
+    cfg.BoolOpt('enable_reverse_dns_lookup',
+                default=False,
+                help=('Set it to False if your environment does not need '
+                      'or have dns server, otherwise it will delay the '
+                      'response from api.')
+                )
 ]
 
 CONF = cfg.CONF

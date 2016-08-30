@@ -30,6 +30,20 @@ from cloudpulse.openstack.common import log as logging
 LOG = logging.getLogger(__name__)
 
 
+def get_handler_cls():
+    cls = simple_server.WSGIRequestHandler
+
+    class CloudpulseHandler(cls, object):
+
+        def address_string(self):
+            if cfg.CONF.api.enable_reverse_dns_lookup:
+                return super(CloudpulseHandler, self).address_string()
+            else:
+                return self.client_address[0]
+
+    return CloudpulseHandler
+
+
 def main():
     service.prepare_service(sys.argv)
 
@@ -37,7 +51,8 @@ def main():
 
     # Create the WSGI server and start it
     host, port = cfg.CONF.host, cfg.CONF.port
-    srv = simple_server.make_server(host, port, app)
+    srv = simple_server.make_server(
+        host, port, app, handler_class=get_handler_cls())
 
     LOG.info(_LI('Starting server in PID %s') % os.getpid())
     LOG.debug("Configuration:")
