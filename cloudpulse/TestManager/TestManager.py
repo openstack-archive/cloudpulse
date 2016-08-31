@@ -146,6 +146,9 @@ class TestManager(object):
             if result[0] == 200:
                 Test['state'] = 'success'
                 Test['result'] = textwrap.fill(str(result[1]), 40)
+            elif result[0] == 300:
+                Test['state'] = 'skipped'
+                Test['result'] = textwrap.fill(str(result[1]), 40)
             else:
                 Test['state'] = 'failed'
                 Test['result'] = textwrap.fill(str(result[1]), 40)

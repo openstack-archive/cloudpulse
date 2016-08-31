@@ -196,34 +196,41 @@ class operator_scenario(base.Scenario):
 
     @base.scenario(admin_only=False, operator=True)
     def ceph_check(self):
+
         self.load()
-        cmd = (r"ceph -f json status")
+        storage_nodes_from_ansible_config = [node.name.lower(
+        ) for node in self.os_node_info_obj.get_host_list()
+            if node.role == "block_storage"]
 
-        is_containerized = cfg.CONF.operator_test.containerized
-        if is_containerized:
-            ceph_container = cfg.CONF.operator_test.ceph_container
-            cmd = ("docker exec %s %s" % (ceph_container, cmd))
+        if storage_nodes_from_ansible_config:
+            cmd = (r"ceph -f json status")
+            is_containerized = cfg.CONF.operator_test.containerized
+            if is_containerized:
+                ceph_container = cfg.CONF.operator_test.ceph_container
+                cmd = ("docker exec %s %s" % (ceph_container, cmd))
 
-        out = self.ans_runner.execute(cmd, roles=['controller'])
-        results, failed_hosts = self.ans_runner.validate_results(out)
+            out = self.ans_runner.execute(cmd, roles=['controller'])
+            results, failed_hosts = self.ans_runner.validate_results(out)
 
-        if results['status'] is 'PASS':
-            ceph_status = results['contacted'][
-                results['contacted'].keys()[0]]['stdout']
-            ceph_status_string = ceph_status.replace('\n', '')
-            ceph_json = json.loads(ceph_status_string)
-            overall_status = ceph_json['health']['overall_status']
-            num_of_osd = ceph_json['osdmap']['osdmap']['num_osds']
-            num_up_osds = ceph_json['osdmap']['osdmap']['num_up_osds']
-            if overall_status == 'HEALTH_OK':
-                return (200, "Overall Status = %s, Cluster status = %s/%s" %
-                        (overall_status, num_up_osds, num_of_osd))
-            else:
-                return (404, "Overall Status = %s, Cluster status = %s/%s" %
-                        (overall_status, num_up_osds, num_of_osd))
+            if results['status'] is 'PASS':
+                ceph_status = results['contacted'][
+                    results['contacted'].keys()[0]]['stdout']
+                ceph_status_string = ceph_status.replace('\n', '')
+                ceph_json = json.loads(ceph_status_string)
+                overall_status = ceph_json['health']['overall_status']
+                num_of_osd = ceph_json['osdmap']['osdmap']['num_osds']
+                num_up_osds = ceph_json['osdmap']['osdmap']['num_up_osds']
+                if overall_status == 'HEALTH_OK':
+                    return (200, "Overall Status = %s, "
+                            "Cluster status = %s/%s" %
+                            (overall_status, num_up_osds, num_of_osd))
+                else:
+                    return (404, "Overall Status = %s, "
+                            "Cluster status = %s/%s" %
+                            (overall_status, num_up_osds, num_of_osd))
         else:
-            return (404, ("Ceph cluster Test Failed: %s" %
-                          results['status_message']), [])
+            return (300, ("Ceph cluster test skipped "
+                          "as no dedicated storage found"))
 
     @base.scenario(admin_only=False, operator=True)
     def node_check(self):
