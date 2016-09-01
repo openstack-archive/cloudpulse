@@ -37,9 +37,7 @@ import paramiko
 import six
 
 from cloudpulse.common import exception
-from cloudpulse.openstack.common._i18n import _
-from cloudpulse.openstack.common._i18n import _LE
-from cloudpulse.openstack.common._i18n import _LW
+from cloudpulse.openstack.common._i18n import _, _LE, _LW
 from cloudpulse.openstack.common import log as logging
 
 UTILS_OPTS = [

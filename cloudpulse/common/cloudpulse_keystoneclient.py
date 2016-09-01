@@ -21,9 +21,7 @@ from oslo_utils import importutils
 
 from cloudpulse.common import context as cloudpulse_context
 from cloudpulse.common import exception
-from cloudpulse.openstack.common._i18n import _
-from cloudpulse.openstack.common._i18n import _LE
-from cloudpulse.openstack.common._i18n import _LI
+from cloudpulse.openstack.common._i18n import _, _LE, _LI
 from cloudpulse.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)

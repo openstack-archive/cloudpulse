@@ -31,8 +31,7 @@ import six
 import wsme
 
 from cloudpulse.common import safe_utils
-from cloudpulse.openstack.common._i18n import _
-from cloudpulse.openstack.common._i18n import _LE
+from cloudpulse.openstack.common._i18n import _, _LE
 from cloudpulse.openstack.common import log as logging
 
 
