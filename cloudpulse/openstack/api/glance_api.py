@@ -15,18 +15,25 @@ from glanceclient.v2 import client as glance_client
 
 
 class GlanceHealth(object):
+
     def __init__(self, keystone_instance):
         authtoken = keystone_instance.keystone_return_authtoken()
         glance_endpoint = (keystone_instance
-                           .keystone_endpoint_find(service_type='image'))
+                           .keystone_endpoint_find(service_type='image',
+                                                   endpoint_type='internalURL')
+                           )
         self.glanceclient = glance_client.Client(glance_endpoint,
                                                  token=authtoken)
 
     def glance_image_list(self):
         try:
             image_list = self.glanceclient.images.list()
+            # The above api doens't generate appropriate exception
+            # so we are walking through the generator to raise exception
+            for image in image_list:
+                pass
         except (ClientException, Exception) as e:
-            return (404, e.message, [])
+            return (404, "ClientException:" + str(e), [])
         return (200, "success", image_list)
 
     def glance_image_create(self, image_url,
