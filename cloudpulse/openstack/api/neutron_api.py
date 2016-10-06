@@ -11,21 +11,34 @@
 # under the License.
 
 from neutronclient.common.exceptions import NeutronException
-from neutronclient.v2_0 import client as neutron_client
-
+from neutronclient.neutron import client as neutronclient
+from keystoneclient.auth.identity import v2 as keystone_v2
+from keystoneclient.auth.identity import v3 as keystone_v3
+from keystoneclient import client as keystoneclient
+from keystoneclient import session
 
 class NeutronHealth(object):
     def __init__(self, creds):
-        creds['timeout'] = 30
-        creds['ca_cert'] = creds['cacert']
-        self.neutronclient = neutron_client.Client(**creds)
+        #creds['timeout'] = 30
+        cacert = creds['cacert']
+        del creds['cacert']
+        auth = keystone_v3.Password(**creds)
+        sess = session.Session(auth=auth, verify=cacert)
+        self.neutron_client = neutronclient.Client('2.0', session=sess)
 
     def neutron_agent_list(self):
         try:
-            agent_list = self.neutronclient.list_agents()
+            agent_list = self.neutron_client.list_agents()
         except (NeutronException, Exception) as e:
             return (404, e.message, [])
         return (200, "success", agent_list['agents'])
+
+    def neutron_list_networks(self):
+        try:
+            net_list = self.neutron_client.list_networks()
+        except (NeutronException, Exception) as e:
+            return (404, e.message, [])
+        return (200, "success", net_list['networks'])
 
     def network_create(self, network_name):
         try:

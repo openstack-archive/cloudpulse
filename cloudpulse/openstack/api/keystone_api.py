@@ -11,12 +11,20 @@
 # under the License.
 
 from keystoneclient.exceptions import ClientException
-from keystoneclient.v2_0 import client as keystone_client
+from keystoneclient.auth.identity import v2 as keystone_v2
+from keystoneclient.auth.identity import v3 as keystone_v3
+from keystoneclient import client as keystoneclient
+from keystoneclient import session
 
 
 class KeystoneHealth(object):
     def __init__(self, creds):
-        self.keystoneclient = keystone_client.Client(**creds)
+        cacert = creds['cacert']
+        del creds['cacert']
+        auth = keystone_v3.Password(**creds)
+        sess = session.Session(auth=auth, verify=cacert)
+        self.keystoneclient = keystoneclient.Client(3, session=sess, auth_url=creds['auth_url'])
+
 
     def keystone_service_list(self):
         try:
