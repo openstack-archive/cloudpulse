@@ -10,14 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from novaclient.client import Client
+from keystoneclient.auth.identity import v3 as keystone_v3
+from keystoneclient import session
+from novaclient.client import Client as novaclient
 from novaclient.exceptions import ClientException
 
 
 class NovaHealth(object):
-    def __init__(self, creden):
-        creden['timeout'] = 30
-        self.novaclient = Client(**creden)
+
+    def __init__(self, creds):
+        # creden['timeout'] = 30
+        cacert = creds['cacert']
+        del creds['cacert']
+        auth = keystone_v3.Password(**creds)
+        sess = session.Session(auth=auth, verify=cacert)
+        self.novaclient = novaclient(2, session=sess)
 
     def nova_hypervisor_list(self):
         try:
