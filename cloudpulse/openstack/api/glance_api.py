@@ -12,18 +12,18 @@
 
 from glanceclient.exc import ClientException
 from glanceclient.v2 import client as glance_client
+from keystoneclient.auth.identity import v3 as keystone_v3
+from keystoneclient import session
 
 
 class GlanceHealth(object):
 
-    def __init__(self, keystone_instance):
-        authtoken = keystone_instance.keystone_return_authtoken()
-        glance_endpoint = (keystone_instance
-                           .keystone_endpoint_find(service_type='image',
-                                                   endpoint_type='internalURL')
-                           )
-        self.glanceclient = glance_client.Client(glance_endpoint,
-                                                 token=authtoken)
+    def __init__(self, creds):
+        cacert = creds['cacert']
+        del creds['cacert']
+        auth = keystone_v3.Password(**creds)
+        sess = session.Session(auth=auth, verify=cacert)
+        self.glanceclient = glance_client.Client('1', session=sess)
 
     def glance_image_list(self):
         try:

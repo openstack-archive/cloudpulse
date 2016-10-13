@@ -10,12 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from cinderclient.client import Client
+from cinderclient.client import Client as cinder_client
+from keystoneclient.auth.identity import v3 as keystone_v3
+from keystoneclient import session
 
 
 class CinderHealth(object):
+
     def __init__(self, creds):
-        self.cinderclient = Client(**creds)
+        cacert = creds['cacert']
+        del creds['cacert']
+        auth = keystone_v3.Password(**creds)
+        sess = session.Session(auth=auth, verify=cacert)
+        self.cinderclient = cinder_client(2, session=sess)
 
     def cinder_list(self):
         try:

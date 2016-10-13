@@ -10,22 +10,36 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
+from keystoneclient.auth.identity import v3 as keystone_v3
+from keystoneclient import session
 from neutronclient.common.exceptions import NeutronException
-from neutronclient.v2_0 import client as neutron_client
+from neutronclient.neutron import client as neutronclient
 
 
 class NeutronHealth(object):
+
     def __init__(self, creds):
-        creds['timeout'] = 30
-        creds['ca_cert'] = creds['cacert']
-        self.neutronclient = neutron_client.Client(**creds)
+        # creds['timeout'] = 30
+        cacert = creds['cacert']
+        del creds['cacert']
+        auth = keystone_v3.Password(**creds)
+        sess = session.Session(auth=auth, verify=cacert)
+        self.neutron_client = neutronclient.Client('2.0', session=sess)
 
     def neutron_agent_list(self):
         try:
-            agent_list = self.neutronclient.list_agents()
+            agent_list = self.neutron_client.list_agents()
         except (NeutronException, Exception) as e:
             return (404, e.message, [])
         return (200, "success", agent_list['agents'])
+
+    def neutron_list_networks(self):
+        try:
+            net_list = self.neutron_client.list_networks()
+        except (NeutronException, Exception) as e:
+            return (404, e.message, [])
+        return (200, "success", net_list['networks'])
 
     def network_create(self, network_name):
         try:
@@ -44,7 +58,7 @@ class NeutronHealth(object):
                 "network_id": network_id,
                 "ip_version": 4,
                 "cidr": network_cidr
-                }
+            }
             res = self.neutronclient.create_subnet({'subnet': subnet})
         except (NeutronException, Exception) as e:
             return (404, e.message, [])
