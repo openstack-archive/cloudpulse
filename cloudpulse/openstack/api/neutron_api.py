@@ -11,8 +11,6 @@
 # under the License.
 
 
-from keystoneclient.auth.identity import v3 as keystone_v3
-from keystoneclient import session
 from neutronclient.common.exceptions import NeutronException
 from neutronclient.neutron import client as neutronclient
 
@@ -20,12 +18,7 @@ from neutronclient.neutron import client as neutronclient
 class NeutronHealth(object):
 
     def __init__(self, creds):
-        # creds['timeout'] = 30
-        cacert = creds['cacert']
-        del creds['cacert']
-        auth = keystone_v3.Password(**creds)
-        sess = session.Session(auth=auth, verify=cacert)
-        self.neutron_client = neutronclient.Client('2.0', session=sess)
+        self.neutron_client = neutronclient.Client('2.0', **creds)
 
     def neutron_agent_list(self):
         try:

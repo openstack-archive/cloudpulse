@@ -12,18 +12,19 @@
 
 from glanceclient.exc import ClientException
 from glanceclient.v2 import client as glance_client
-from keystoneclient.auth.identity import v3 as keystone_v3
-from keystoneclient import session
 
 
 class GlanceHealth(object):
 
     def __init__(self, creds):
-        cacert = creds['cacert']
-        del creds['cacert']
-        auth = keystone_v3.Password(**creds)
-        sess = session.Session(auth=auth, verify=cacert)
-        self.glanceclient = glance_client.Client('1', session=sess)
+        endpoint = None
+        if 'endpoint_type' in creds:
+            del creds['endpoint_type']
+        if 'session' in creds:
+            endpoint = creds['session'].get_endpoint(
+                service_type='image', interface='internal')
+        self.glanceclient = glance_client.Client(
+            '2', endpoint_override=endpoint, **creds)
 
     def glance_image_list(self):
         try:

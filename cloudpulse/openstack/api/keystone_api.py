@@ -10,21 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneclient.auth.identity import v3 as keystone_v3
 from keystoneclient import client as keystoneclient
 from keystoneclient.exceptions import ClientException
-from keystoneclient import session
 
 
 class KeystoneHealth(object):
 
     def __init__(self, creds):
-        cacert = creds['cacert']
-        del creds['cacert']
-        auth = keystone_v3.Password(**creds)
-        sess = session.Session(auth=auth, verify=cacert)
-        self.keystoneclient = keystoneclient.Client(
-            3, session=sess, auth_url=creds['auth_url'])
+        self.keystoneclient = keystoneclient.Client(**creds)
 
     def keystone_service_list(self):
         try:

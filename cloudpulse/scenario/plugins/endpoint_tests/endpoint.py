@@ -13,6 +13,7 @@
 from cloudpulse.openstack.api.cinder_api import CinderHealth
 from cloudpulse.openstack.api.glance_api import GlanceHealth
 from cloudpulse.openstack.api.keystone_api import KeystoneHealth
+from cloudpulse.openstack.api import keystone_session
 from cloudpulse.openstack.api.neutron_api import NeutronHealth
 from cloudpulse.openstack.api.nova_api import NovaHealth
 from cloudpulse.scenario import base
@@ -53,61 +54,41 @@ CONF.register_opts(TESTS_OPTS, periodic_test_group)
 
 class endpoint_scenario(base.Scenario):
 
-    def _get_credentials(self):
-        importutils.import_module('keystonemiddleware.auth_token')
+    def _get_keystone_session_creds(self):
         creds = {}
-        creds['username'] = cfg.CONF.keystone_authtoken.username
-        creds['password'] = cfg.CONF.keystone_authtoken.password
-        creds['project_name'] = cfg.CONF.keystone_authtoken.project_name
-        creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
-        creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
-        if cfg.CONF.keystone_authtoken.project_domain_id:
-            creds[
-                'project_domain_id'] = (cfg.CONF.keystone_authtoken.
-                                        project_domain_id)
-            creds[
-                'user_domain_id'] = cfg.CONF.keystone_authtoken.user_domain_id
-        return creds
-
-    def _get_nova_v2_credentials(self):
-        importutils.import_module('keystonemiddleware.auth_token')
-        creds = {}
-        creds['username'] = cfg.CONF.keystone_authtoken.username
-        creds['project_id'] = cfg.CONF.keystone_authtoken.project_name
-        creds['api_key'] = cfg.CONF.keystone_authtoken.password
-        creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
-        creds['version'] = 2
-        creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
+        creds['session'] = keystone_session._get_kssession()
         creds['endpoint_type'] = 'internalURL'
         return creds
 
     @base.scenario(admin_only=False, operator=False)
     def nova_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         nova = NovaHealth(creds)
         return nova.nova_service_list()
 
     @base.scenario(admin_only=False, operator=False)
     def neutron_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         neutron = NeutronHealth(creds)
         return neutron.neutron_list_networks()
 
     @base.scenario(admin_only=False, operator=False)
     def keystone_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        importutils.import_module('keystonemiddleware.auth_token')
+        creds = self._get_keystone_session_creds()
+        creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
         keystone = KeystoneHealth(creds)
         return keystone.keystone_service_list()
 
     @base.scenario(admin_only=False, operator=False)
     def glance_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         glance = GlanceHealth(creds)
         return glance.glance_image_list()
 
     @base.scenario(admin_only=False, operator=False)
     def cinder_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         cinder = CinderHealth(creds)
         return cinder.cinder_list()
 
