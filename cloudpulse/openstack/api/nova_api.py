@@ -19,12 +19,7 @@ from novaclient.exceptions import ClientException
 class NovaHealth(object):
 
     def __init__(self, creds):
-        # creden['timeout'] = 30
-        cacert = creds['cacert']
-        del creds['cacert']
-        auth = keystone_v3.Password(**creds)
-        sess = session.Session(auth=auth, verify=cacert)
-        self.novaclient = novaclient(2, session=sess)
+        self.novaclient = novaclient(2, **creds)
 
     def nova_hypervisor_list(self):
         try:

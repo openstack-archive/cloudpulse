@@ -15,6 +15,7 @@ from cloudpulse.openstack.api.glance_api import GlanceHealth
 from cloudpulse.openstack.api.keystone_api import KeystoneHealth
 from cloudpulse.openstack.api.neutron_api import NeutronHealth
 from cloudpulse.openstack.api.nova_api import NovaHealth
+from cloudpulse.openstack.api import keystone_session
 from cloudpulse.scenario import base
 from oslo_config import cfg
 from oslo_utils import importutils
@@ -52,7 +53,7 @@ CONF.register_opts(TESTS_OPTS, periodic_test_group)
 
 
 class endpoint_scenario(base.Scenario):
-
+    '''
     def _get_credentials(self):
         importutils.import_module('keystonemiddleware.auth_token')
         creds = {}
@@ -80,34 +81,41 @@ class endpoint_scenario(base.Scenario):
         creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
         creds['endpoint_type'] = 'internalURL'
         return creds
+    '''
+    
+    def _get_keystone_session_creds(self):
+        creds = {}
+        creds['session'] = keystone_session._get_kssession()
+        creds['endpoint_type'] = 'internalURL'
+        return creds        
 
     @base.scenario(admin_only=False, operator=False)
     def nova_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         nova = NovaHealth(creds)
         return nova.nova_service_list()
 
     @base.scenario(admin_only=False, operator=False)
     def neutron_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         neutron = NeutronHealth(creds)
         return neutron.neutron_list_networks()
 
     @base.scenario(admin_only=False, operator=False)
     def keystone_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         keystone = KeystoneHealth(creds)
         return keystone.keystone_service_list()
 
     @base.scenario(admin_only=False, operator=False)
     def glance_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         glance = GlanceHealth(creds)
         return glance.glance_image_list()
 
     @base.scenario(admin_only=False, operator=False)
     def cinder_endpoint(self, *args, **kwargs):
-        creds = self._get_credentials()
+        creds = self._get_keystone_session_creds()
         cinder = CinderHealth(creds)
         return cinder.cinder_list()
 

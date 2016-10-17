@@ -19,11 +19,7 @@ from keystoneclient import session
 class GlanceHealth(object):
 
     def __init__(self, creds):
-        cacert = creds['cacert']
-        del creds['cacert']
-        auth = keystone_v3.Password(**creds)
-        sess = session.Session(auth=auth, verify=cacert)
-        self.glanceclient = glance_client.Client('1', session=sess)
+        self.glanceclient = glance_client.Client('1', **creds)
 
     def glance_image_list(self):
         try:

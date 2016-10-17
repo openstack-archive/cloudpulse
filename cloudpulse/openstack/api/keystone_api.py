@@ -19,12 +19,8 @@ from keystoneclient import session
 class KeystoneHealth(object):
 
     def __init__(self, creds):
-        cacert = creds['cacert']
-        del creds['cacert']
-        auth = keystone_v3.Password(**creds)
-        sess = session.Session(auth=auth, verify=cacert)
         self.keystoneclient = keystoneclient.Client(
-            3, session=sess, auth_url=creds['auth_url'])
+            3, **creds)
 
     def keystone_service_list(self):
         try:
