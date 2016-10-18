@@ -28,10 +28,10 @@ def _get_kssession():
     kwargs = {'auth_url': cfg.CONF.keystone_authtoken.auth_uri,
               'username': cfg.CONF.keystone_authtoken.username,
               'password': cfg.CONF.keystone_authtoken.password}
-    if cfg.CONF.keystone_authtoken.auth_version == '2':
+    if cfg.CONF.keystone_authtoken.auth_uri[-3:] == '2.0':
         client = v2_client
         kwargs['tenant_name'] = cfg.CONF.keystone_authtoken.project_name
-    elif cfg.CONF.keystone_authtoken.auth_version == '3':
+    elif cfg.CONF.keystone_authtoken.auth_uri[-1:] == '3':
         client = v3_client
         kwargs['project_name'] = cfg.CONF.keystone_authtoken.project_name
         kwargs['user_domain_id'] = cfg.CONF.keystone_authtoken.user_domain_id
