@@ -91,3 +91,6 @@ def timerfunc(*args, **kwargs):
             testthreads.append(testthr)
             testthr.start()
             LOG.debug(_LI('REPFUNCTION, exec test %s') % test['name'])
+    for thr in testthreads:
+        thr.join()
+        testthreads.remove(thr)
