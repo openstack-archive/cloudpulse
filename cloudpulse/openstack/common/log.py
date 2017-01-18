@@ -30,7 +30,6 @@ It also allows setting of formatting information through conf.
 import copy
 import inspect
 import itertools
-import logging
 import logging.config
 import logging.handlers
 import os
@@ -38,6 +37,7 @@ import socket
 import sys
 import traceback
 
+from oslo_log import log as logging
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import importutils

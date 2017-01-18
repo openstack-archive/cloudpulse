@@ -19,7 +19,7 @@ from cloudpulse import objects
 from cloudpulse.openstack.common import service as os_service
 from cloudpulse.scenario import base
 import datetime
-import logging
+from oslo_log import log as logging
 from oslo_config import cfg
 from oslo_utils import importutils
 import pytz
