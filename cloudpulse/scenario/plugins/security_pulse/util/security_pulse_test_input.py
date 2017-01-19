@@ -28,13 +28,13 @@ class security_test_input_reader(object):
         try:
             fp = open(fileName)
         except IOError as e:
-            print ("Error while opening the file...%s", e)
+            print("Error while opening the file...%s", e)
             return
 
         try:
             self.secInputYamlObj = yaml.safe_load(fp)
         except yaml.error.YAMLError as perr:
-            print ("Error while parsing...%s", perr)
+            print("Error while parsing...%s", perr)
             return
 
     def process_security_input_file(self):

@@ -58,7 +58,7 @@ class mysql_tls_enable_check(object):
                                         ', '),
                                     'Status': 'Fail'})
                             final_result.update({'result': [Result]})
-                            print (final_result)
+                            print(final_result)
                             return
                         else:
                             overall_status = True
@@ -69,7 +69,7 @@ class mysql_tls_enable_check(object):
                                            mysql',
                                            'Status': 'Pass'})
                             final_result.update({'result': [Result]})
-                            print (final_result)
+                            print(final_result)
                             return
                     else:
                         overall_status = False
@@ -82,7 +82,7 @@ class mysql_tls_enable_check(object):
                                 SSL files',
                                 'Status': 'Fail'})
                         final_result.update({'result': [Result]})
-                        print (final_result)
+                        print(final_result)
                         return
                 else:
                     overall_status = False
@@ -91,7 +91,7 @@ class mysql_tls_enable_check(object):
                                    'Message': 'SSL is not enabled in mysql',
                                    'Status': 'Fail'})
                     final_result.update({'result': [Result]})
-                    print (final_result)
+                    print(final_result)
                     return
 
             except Exception:
@@ -102,7 +102,7 @@ class mysql_tls_enable_check(object):
                                reading ' + self.SSL_file,
                                'Status': 'Fail'})
                 final_result.update({'result': [Result]})
-                print (final_result)
+                print(final_result)
                 return
         else:
             overall_status = False
@@ -111,7 +111,7 @@ class mysql_tls_enable_check(object):
                            'Message': self.SSL_file + ' not found',
                            'Status': 'Fail'})
             final_result.update({'result': [Result]})
-            print (final_result)
+            print(final_result)
             return
 
     def formfileObj(self, file_name, stat_file_obj):

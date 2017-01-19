@@ -33,7 +33,7 @@ def get_temp_path():
         input_data = input_reader.process_security_input_file()
         return input_data['global_data']['file_info_dir']
     except Exception:
-        print ("Exception while getting temp path..")
+        print("Exception while getting temp path..")
         return "/var/sec_hc/"
 
 CONST.HOST_KEY_CHECKING = False
@@ -70,7 +70,7 @@ class ansible_runner(object):
             for f in file_list:
                 self.copy(f, TMP_LOCATION, container_name=container_name)
             out = self.execute(command, container_name=container_name)
-            print (out)
+            print(out)
             # remove the files from containers
             self.execute("rm -rf " + TMP_LOCATION,
                          container_name=container_name)
@@ -118,12 +118,12 @@ class ansible_runner(object):
             forks=1,
         )
         out = runner.run()
-        print (out)
+        print(out)
         # copy to container
         if is_containerized:
             con_runner = self.container_copy(src, dest, container_name)
             out1 = con_runner.run()
-            print (out1)
+            print(out1)
         return out
 
     def container_copy(self, src, dest, container_name):
@@ -139,7 +139,7 @@ class ansible_runner(object):
             inventory=self.inventory,
             forks=1,
         )
-        print (cmd)
+        print(cmd)
         return runner
 
     def fetch(self, src, dest, flat='yes'):
@@ -198,7 +198,7 @@ class ansible_runner(object):
                 result[f] = open(TMP_LOCATION + 'output/' +
                                  f + TMP_LOCATION + 'output', 'r').read()
             except IOError:
-                print ("Error opening the file : " + TMP_LOCATION +
+                print("Error opening the file : " + TMP_LOCATION +
                        'output/' + f + TMP_LOCATION + 'output')
         return result
 
@@ -253,7 +253,7 @@ class ansible_runner(object):
             return (404, json.dumps([msg], []))
 
     def get_validated_data(self, results):
-        print ("Inside get_validated_data", results)
+        print("Inside get_validated_data", results)
         # final_result = {}
         output = []
         status = 200  # 'PASS'
@@ -294,7 +294,7 @@ class ansible_runner(object):
                     tc.update({'node': node})
                     output.append(tc)
             except Exception:
-                print ("Exception while getting the result" +
+                print("Exception while getting the result" +
                        " from the ansible output")
         return (status, json.dumps(output), [])
 

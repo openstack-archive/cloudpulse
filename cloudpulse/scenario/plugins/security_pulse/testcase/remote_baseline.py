@@ -45,9 +45,9 @@ class FileTraversal(object):
                                     'mode': ins.getMode(),
                                     'user': ins.getUser(),
                                     'group': ins.getGroup()}})
-            print (output)
+            print(output)
         except Exception as e:
-            print (e)
+            print(e)
 
 
 if __name__ == '__main__':

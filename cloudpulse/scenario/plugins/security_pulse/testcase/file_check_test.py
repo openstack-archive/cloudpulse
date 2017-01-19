@@ -25,7 +25,7 @@ class SecurityFileCheck(object):
 
     def perform_file_permission_check(self, input_params):
         try:
-            print ("Executing the test ", input_params.get('testcase_name'))
+            print("Executing the test ", input_params.get('testcase_name'))
             final_result = []
             final_status = []
             final_msg = []
@@ -33,7 +33,7 @@ class SecurityFileCheck(object):
             is_containerized = input_params['global_data']['is_containerized']
             perform_on = input_params['perform_on']
             if perform_on is None or not perform_on:
-                print ("Perform on should be mentioned either at test level" +
+                print("Perform on should be mentioned either at test level" +
                        " or test case level")
                 msg = {'message': 'Perform on should be mentioned either at' +
                        ' test level or test case level'}
@@ -110,7 +110,7 @@ class SecurityFileCheck(object):
             else:
                 return (200, final_result, final_msg)
         except Exception as e:
-            print ("exception in perform_file_permission_check is--", e)
+            print("exception in perform_file_permission_check is--", e)
             subprocess.call([
                 'rm', '-rf',
                 file_info_dir +
@@ -121,7 +121,7 @@ class SecurityFileCheck(object):
                 'rm',
                 file_info_dir +
                 'dir_list'])
-            print (
+            print(
                 "Exception occured in executing" +
                 " perform_file_permission_check")
             message = {

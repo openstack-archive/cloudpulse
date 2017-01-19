@@ -33,7 +33,7 @@ class password_encryption_test(object):
                 'status': 'Fail'}
             Result.update(msg)
             final_result.update({'result': [Result]})
-            print (final_result)
+            print(final_result)
             return
         else:
             algo = config.get("token", "hash_algorithm")
@@ -49,7 +49,7 @@ class password_encryption_test(object):
                         'status': 'Fail'}
                     Result.update(msg)
                     final_result.update({'result': [Result]})
-                    print (final_result)
+                    print(final_result)
                     return
                 else:
                     provider = config.get("token", "provider")
@@ -65,7 +65,7 @@ class password_encryption_test(object):
                             'status': 'Pass'}
                         Result.update(msg)
                         final_result.update({'result': [Result]})
-                        print (final_result)
+                        print(final_result)
                         return
                     elif provider == "uuid":
                         overall_status = False
@@ -80,7 +80,7 @@ class password_encryption_test(object):
                             'status': 'Fail'}
                         Result.update(msg)
                         final_result.update({'result': [Result]})
-                        print (final_result)
+                        print(final_result)
                         return
             elif algo == "md5":
                 overall_status = False
@@ -93,7 +93,7 @@ class password_encryption_test(object):
                     'status': 'Fail'}
                 Result.update(msg)
                 final_result.update({'result': [Result]})
-                print (final_result)
+                print(final_result)
                 return
 
 if __name__ == '__main__':

@@ -25,14 +25,14 @@ class log_file_mode_check_test(object):
 
     def perform_log_file_mode_test(self, input_params):
         try:
-            print ("Executing the test ", input_params.get('testcase_name'))
+            print("Executing the test ", input_params.get('testcase_name'))
             final_result = []
             final_status = []
             final_msg = []
             file_info_dir = input_params['global_data']['file_info_dir']
             perform_on = input_params['perform_on']
             if perform_on is None or not perform_on:
-                print ("Perform on should be mentioned either at test level \
+                print("Perform on should be mentioned either at test level \
                     or test case level")
                 message = {
                     'message': 'Perform on should be mentioned either at \
@@ -66,7 +66,7 @@ class log_file_mode_check_test(object):
             else:
                 return (200, final_result, final_msg)
         except Exception:
-            print (
+            print(
                 "Exception occured in executing" +
                 " perform_log_file_mode_test")
             message = {

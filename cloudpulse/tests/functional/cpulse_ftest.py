@@ -52,11 +52,11 @@ class node_info_reader(object):
 
     def __init__(self, host_file=None):
         if host_file is None:
-            print ("Host file not passed. exit")
+            print("Host file not passed. exit")
             sys.exit(0)
         self.host_file = utils.get_absolute_path_for_file(__file__, host_file)
         if not os.path.exists(self.host_file):
-            print ("%s file does not exist" % self.host_file)
+            print("%s file does not exist" % self.host_file)
             return
 
         self.parsed_data = utils.create_parsed_yaml(self.host_file)
@@ -85,7 +85,7 @@ class AnsibleRunner(object):
         self.sudo = sudo
 
     def get_validated_data(self, results, stdout=True, stderr=False):
-        # print ("\n\nInside get_validated_data", results)
+        # print("\n\nInside get_validated_data", results)
         output = ''
         ###################################################
         # First validation is to make sure connectivity to

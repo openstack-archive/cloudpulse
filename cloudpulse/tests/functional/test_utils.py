@@ -160,12 +160,12 @@ def create_parsed_yaml(yaml_file):
     try:
         fp = open(yaml_file)
     except IOError as ioerr:
-        print ("Failed to open file %s [%s]" % (yaml_file, ioerr))
+        print("Failed to open file %s [%s]" % (yaml_file, ioerr))
         raise IOError(ioerr)
     try:
         parsed = yaml.safe_load(fp)
     except yaml.error.YAMLError as perr:
-        print ("Failed to parse %s [%s]" % (yaml_file, perr))
+        print("Failed to parse %s [%s]" % (yaml_file, perr))
         return None
     fp.close()
     return parsed

@@ -55,12 +55,12 @@ class BaseLine(object):
                 data = results['contacted'][node]['stdout']
 
                 baseline_data.update({role: ast.literal_eval(data)})
-                print (baseline_data)
+                print(baseline_data)
             formated_data = json.dumps(baseline_data, indent=4)
             open('/var/sec_hc/os_allnode_baseline',
                  'w+').write(str(formated_data))
         except Exception as e:
-            print (e)
+            print(e)
 
 if __name__ == '__main__':
     os_cfg_file = sys.argv[1]

@@ -28,7 +28,7 @@ class mysql_tls_enablement_test(object):
             is_containerized = input_params['global_data']['is_containerized']
             perform_on = input_params['perform_on']
             if perform_on is None or not perform_on:
-                print ("Perform on should be mentioned either at test level \
+                print("Perform on should be mentioned either at test level \
                     or test case level")
                 message = {
                     'message': 'Perform on should be mentioned either at \
@@ -51,9 +51,9 @@ class mysql_tls_enablement_test(object):
             subprocess.call(['rm', '-rf', file_info_dir + 'output'])
             return Result
         except Exception as msg:
-            print (
+            print(
                 "Exception while executing perform_mysql_tls_enablement_test")
-            print (msg)
+            print(msg)
             message = {
                 'message': 'Test case execution failed due to some exception'}
             return (404, json.dumps([message]), [])

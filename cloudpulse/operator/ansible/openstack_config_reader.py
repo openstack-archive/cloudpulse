@@ -26,7 +26,7 @@ class os_cfg_reader(object):
         try:
             fp = open(abs_path)
         except IOError as e:
-            print ("Error while opening the file...%s" % e)
+            print("Error while opening the file...%s" % e)
             return
 
         try:
@@ -34,7 +34,7 @@ class os_cfg_reader(object):
             # print "self.hostYamlObj: ", self.hostYamlObj,
             # dir(self.hostYamlObj)
         except yaml.error.YAMLError as perr:
-            print ("Error while parsing...%s" % perr)
+            print("Error while parsing...%s" % perr)
             return
 
     def setOpenstackNodeIp(self):
@@ -62,10 +62,10 @@ class os_cfg_reader(object):
 
     def printHostList(self):
         for hostObj in self.openstack_host_list:
-            print ("IP - %s" % (hostObj.getIp()))
-            print ("HOST - %s" % (hostObj.getHost()))
-            print ("USER - %s" % (hostObj.getUser()))
-            print ("NAGIOS RUNNING - %s" % (str(hostObj.isNagiosRunning())))
+            print("IP - %s" % (hostObj.getIp()))
+            print("HOST - %s" % (hostObj.getHost()))
+            print("USER - %s" % (hostObj.getUser()))
+            print("NAGIOS RUNNING - %s" % (str(hostObj.isNagiosRunning())))
 
     def generate_ansible_config(self, os_obj_list):
         f = open('/var/sec_hc/ansible_hosts', 'w+')

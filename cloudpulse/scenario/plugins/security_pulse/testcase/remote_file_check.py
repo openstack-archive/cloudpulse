@@ -100,13 +100,13 @@ class FileCheck(object):
                 result.update({'status': 'Pass'})
                 result.update({'message': 'No mismatch'})
                 final_result.update({'result': [result]})
-                print (final_result)
+                print(final_result)
                 return
             else:
                 final_result.update(
                     {'OverallStatus': False})
                 final_result.update({'result': result})
-                print (final_result)
+                print(final_result)
                 return
         except Exception as e:
             final_result.update(
@@ -117,7 +117,7 @@ class FileCheck(object):
             result.update(
                 {'message': 'Exception in file comparision' + str(e)})
             final_result.update({'result': [result]})
-            print (final_result)
+            print(final_result)
             return
 
 if __name__ == '__main__':

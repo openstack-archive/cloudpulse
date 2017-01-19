@@ -24,12 +24,12 @@ import subprocess
 class ks_admin_token_check(object):
 
     def perform_ks_admin_token_check_test(self, input_params):
-        print ("Executing the test ", input_params.get('testcase_name'))
+        print("Executing the test ", input_params.get('testcase_name'))
         file_info_dir = input_params['global_data']['file_info_dir']
         is_containerized = input_params['global_data']['is_containerized']
         perform_on = input_params['perform_on']
         if perform_on is None or not perform_on:
-            print ("Perform on should be mentioned either at \
+            print("Perform on should be mentioned either at \
                     test level or test case level")
             msg = {
                 'message': 'Perform on should be mentioned either ' +

@@ -40,7 +40,7 @@ class tls_enable_check(object):
                 'Status': 'Fail'}
             Result.update(msg)
             final_result.update({'result': [Result]})
-            print (final_result)
+            print(final_result)
             return
         else:
             use_tls = config.get("ldap", "use_tls")
@@ -53,7 +53,7 @@ class tls_enable_check(object):
                     'Status': 'Fail'}
                 Result.update(msg)
                 final_result.update({'result': [Result]})
-                print (final_result)
+                print(final_result)
                 return
             elif use_tls == 'true':
                 ca_dir = None
@@ -73,7 +73,7 @@ class tls_enable_check(object):
                             'Status': 'Fail'}
                         Result.update(msg)
                         final_result.update({'result': [Result]})
-                        print (final_result)
+                        print(final_result)
                         return
                 if not ca_dir:
                     overall_status = False
@@ -85,7 +85,7 @@ class tls_enable_check(object):
                         'Status': 'Fail'}
                     Result.update(msg)
                     final_result.update({'result': [Result]})
-                    print (final_result)
+                    print(final_result)
                     return
                 else:
                     for dirName, subdirList, fileList in os.walk(ca_dir):
@@ -107,7 +107,7 @@ class tls_enable_check(object):
                                     'Status': 'Fail'}
                                 Result.update(res)
                                 final_result.update({'result': [Result]})
-                                print (final_result)
+                                print(final_result)
                                 return
                 final_result.update({'OverallStatus': overall_status})
                 msg = {
@@ -117,7 +117,7 @@ class tls_enable_check(object):
                     'Status': 'Pass'}
                 Result.update(msg)
                 final_result.update({'result': [Result]})
-                print (final_result)
+                print(final_result)
                 return
 
 if __name__ == '__main__':

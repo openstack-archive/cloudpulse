@@ -94,10 +94,10 @@ def check_for_valid_testcase_input_file():
             cfg.CONF.security_pulse_test.testcase_input_file
     except Exception:
         msg = "Exception while reading the testcase input file"
-        print (msg)
+        print(msg)
         return False, (404, msg, [])
     if not os.path.isfile(testcase_input_file):
         msg = 'Testcase input file %s not found' % (testcase_input_file)
-        print (msg)
+        print(msg)
         return False, (404, msg, [])
     return True, testcase_input_file

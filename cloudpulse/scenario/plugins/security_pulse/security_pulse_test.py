@@ -160,8 +160,8 @@ class security_pulse_scenario(base.Scenario):
     #         testcase_input_file, "mysql_db_test")
     #     test = mysql_db_test()
     #     result = test.perform_mysql_db_test(input_params)
-    #     print ("result from mysql_db_check")
-    #     print (result)
+    #     print("result from mysql_db_check")
+    #     print(result)
     #     return result
 
     def verbose(self, *args, **kwargs):

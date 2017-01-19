@@ -110,7 +110,7 @@ class keystone_admin_token_check(object):
         output.append(Result)
         final_result.update({'OverallStatus': overall_status})
         final_result.update({'result': output})
-        print (final_result)
+        print(final_result)
 
 if __name__ == '__main__':
     keystone_admin_token_check_obj = keystone_admin_token_check()

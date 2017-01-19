@@ -25,12 +25,12 @@ class openstack_node_info_reader(object):
         try:
             fp = open(os_node_file)
         except IOError as e:
-            print ("Error while opening the file...%s", e)
+            print("Error while opening the file...%s", e)
             return
         try:
             self.hostYamlObj = yaml.safe_load(fp)
         except yaml.error.YAMLError as perr:
-            print ("Error while parsing...%s", perr)
+            print("Error while parsing...%s", perr)
             return
 
     def get_host_list(self):
@@ -54,7 +54,7 @@ class openstack_node_info_reader(object):
 
     def printHostList(self, openstack_host_list):
         for hostObj in openstack_host_list:
-            print ("%s - %s - %s", hostObj.getIp(),
+            print("%s - %s - %s", hostObj.getIp(),
                    hostObj.getHost(), hostObj.getUser())
 
     def get_galera_details(self):
