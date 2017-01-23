@@ -19,7 +19,6 @@ from __future__ import print_function
 import copy
 import errno
 import gc
-import logging
 import os
 import pprint
 import socket
@@ -29,6 +28,7 @@ import traceback
 import eventlet.backdoor
 import greenlet
 from oslo_config import cfg
+from oslo_log import log as logging
 
 from cloudpulse.openstack.common._i18n import _LI
 

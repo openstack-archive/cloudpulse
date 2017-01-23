@@ -14,7 +14,7 @@
 from cloudpulse.common import exception
 from cloudpulse import objects
 import contextlib
-import logging
+from oslo_log import log as logging
 from oslo_utils import excutils
 import time
 

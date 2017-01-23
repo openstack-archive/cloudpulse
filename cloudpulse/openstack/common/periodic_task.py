@@ -12,11 +12,11 @@
 #    under the License.
 
 import copy
-import logging
 import random
 import time
 
 from oslo_config import cfg
+from oslo_log import log as logging
 from oslo_utils import reflection
 import six
 
