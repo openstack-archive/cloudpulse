@@ -12,17 +12,19 @@
 
 from __future__ import print_function
 from cloudpulse.openstack.api.nova_api import NovaHealth
-from cloudpulse.operator.ansible.ansible_runner import ansible_runner
 from cloudpulse.operator.ansible.openstack_node_info_reader import \
     openstack_node_info_reader
+
 from cloudpulse.scenario import base
-import json
+import errno
+import os
 from oslo_config import cfg
 from oslo_utils import importutils
 import re
-
-cfg.CONF.import_opt('auth_uri', 'keystonemiddleware.auth_token',
-                    group='keystone_authtoken')
+import shlex
+import simplejson
+from subprocess import PIPE
+from subprocess import Popen
 
 TESTS_OPTS = [
     cfg.StrOpt('operator_setup_file',
@@ -32,13 +34,13 @@ TESTS_OPTS = [
                 default=True,
                 help='enable if the processes are running as containers'),
     cfg.StrOpt('rabbit_container',
-               default='rabbitmq_v1',
+               default='rabbitmq',
                help='name of the rabitmq container'),
     cfg.StrOpt('galera_container',
-               default='mariadb_v1',
+               default='mariadb',
                help='name of the galera cluster container'),
     cfg.StrOpt('ceph_container',
-               default='ceph_v1',
+               default='ceph',
                help='name of the ceph cluster container'),
 ]
 
@@ -74,9 +76,45 @@ periodic_test_group = cfg.OptGroup(name='periodic_tests',
                                    title='Periodic tests to be run')
 CONF.register_opts(PERIODIC_TESTS_OPTS, periodic_test_group)
 
+cfg.CONF.import_opt('auth_uri', 'keystonemiddleware.auth_token',
+                    group='keystone_authtoken')
+
+
+def execute(command):
+
+    try:
+        command = shlex.split(command)
+        stdout = None
+        stderr = None
+        p = Popen(command, shell=False, stdout=PIPE,
+                  stderr=PIPE,
+                  bufsize=-1, env=os.environ, close_fds=True)
+        stdout, stderr = p.communicate()
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            return {'status': 127, 'output': ""}
+        else:
+            return {'status': 126, 'output': ""}
+
+    if p.returncode == 126 or p.returncode == 127:
+        stdout = str(b"")
+    return {'status': p.returncode, 'output': stdout}
+
+
+def get_container_name(name):
+    cmd = "ansible -o all  -i 127.0.0.1, -a 'docker ps' -u root"
+    op = execute(cmd)
+    if op['status']:
+        return None
+    dockerps = op['output'].split('\\n')
+    for line in dockerps:
+        if name in line:
+            linear = line.split()
+            return linear[len(linear) - 1].strip('\n')
+    return None
+
 
 class operator_scenario(base.Scenario):
-
     def _get_nova_hypervior_list(self):
         importutils.import_module('keystonemiddleware.auth_token')
         creds = {}
@@ -92,28 +130,26 @@ class operator_scenario(base.Scenario):
     def load(self):
         self.os_node_info_obj = openstack_node_info_reader(
             cfg.CONF.operator_test.operator_setup_file)
-        openstack_node_list = self.os_node_info_obj.get_host_list()
-        self.ans_runner = ansible_runner(openstack_node_list)
-        inventory = self.ans_runner.init_ansible_inventory(openstack_node_list)
-        self.ans_runner.set_ansible_inventory(inventory)
 
     @base.scenario(admin_only=False, operator=True)
     def rabbitmq_check(self):
         self.load()
+        anscmd = "ansible -o all  -i 127.0.0.1, -a "
         cmd = "rabbitmqctl cluster_status -q"
 
         is_containerized = cfg.CONF.operator_test.containerized
         if is_containerized:
-            rabbit_container = cfg.CONF.operator_test.rabbit_container
-            cmd = ("docker exec %s %s" % (rabbit_container, cmd))
+            rabbit_container = get_container_name('rabbitmq')
+            cmd = ("'docker exec %s %s'" % (rabbit_container, cmd))
 
-        out = self.ans_runner.execute(cmd, roles=['controller'])
-        res, output = self.ans_runner.validate_results(out)
+        cmd = anscmd + cmd + " -u root "
 
-        if res['status'] is 'PASS':
-            node_status = res['contacted'][
-                res['contacted'].keys()[0]]['stdout']
-            node_status_string = node_status.replace('\n', '')
+        res = execute(cmd)
+
+        if not res['status']:
+            node_status = res['output']
+            node_status_string = node_status.replace('\\n', '')
+            node_status_string = node_status_string.replace(' ', '')
 
             nodes = []
             running = []
@@ -131,112 +167,144 @@ class operator_scenario(base.Scenario):
                            for x in mathobj.group(1).split(",")]
 
             diffnodes = list(set(nodes) - set(running))
+
             if diffnodes:
-                return(404, ("Failed Nodes : %s" %
-                             str(diffnodes)))
+                return (404, ("Failed Nodes : %s" %
+                              str(diffnodes)))
             else:
                 return (200, "Running Nodes : %s" % str(nodes),
                         ['RabbitMQ-server Running'])
         else:
             return (404, ("RabbitMQ-server test failed :%s" %
-                          res['status_message']), [])
+                          "rabbitmq-service is down", []))
 
     @base.scenario(admin_only=False, operator=True)
     def galera_check(self):
         self.load()
+        anscmd = "ansible -o all  -i 127.0.0.1, -a "
         galera = self.os_node_info_obj.get_galera_details()
 
-        cmd = ((r"mysql -u %s -p%s -e 'SHOW STATUS;'|grep "
-                "wsrep_incoming_addresses") %
+        cmd = ((r'mysql -u %s -p%s -e "SHOW STATUS;"') %
                (galera['username'], galera['password']))
 
         is_containerized = cfg.CONF.operator_test.containerized
         if is_containerized:
-            galera_container = cfg.CONF.operator_test.galera_container
-            cmd = ("docker exec %s %s" % (galera_container, cmd))
+            galera_container = get_container_name('mariadb')
 
-        out = self.ans_runner.execute(cmd, roles=['controller'])
-        results, failed_hosts = self.ans_runner.validate_results(out)
+        cmd = ("'docker exec %s %s'" % (galera_container, cmd))
+        cmd = anscmd + cmd + ' -u root'
 
-        if results['status'] is 'PASS':
-            galera_status = results['contacted'][
-                results['contacted'].keys()[0]]['stdout']
-            galera_status_string = galera_status.replace('\n', '')
-            mathobj = re.search(r'wsrep_incoming_addresses\s+(.*?)$',
+        res = execute(cmd)
+
+        if not res['status']:
+            galera_status = res['output']
+            if 'wsrep_incoming_addresses' not in galera_status:
+                return (404, ("Galera Cluster Test Failed: %s" %
+                              "Invalid cluster status", []))
+            galera_status_string = galera_status.replace('\\n', '')
+            mathobj = re.search(r'wsrep_incoming_addresses\s+(.*?)wsrep.*$',
                                 galera_status_string, re.M | re.I)
             nodes = mathobj.group(1)
             return (200, "Active Nodes : %s" % nodes,
                     ['Galera Cluster Test Passed'])
         else:
             return (404, ("Galera Cluster Test Failed: %s" %
-                          results['status_message']), [])
+                          "service access failed", []))
 
     @base.scenario(admin_only=False, operator=True)
     def docker_check(self):
         self.load()
-        cmd = "docker ps -aq --filter 'status=exited'"
-        out = self.ans_runner.execute(cmd)
+        node_list = self.os_node_info_obj.get_host_list()
 
-        results, failed_hosts = self.ans_runner.validate_results(out)
-        if results['status'] is 'PASS':
-            docker_failed = {key: results['contacted'][key]['stdout']
-                             for key in results['contacted']
-                             if results['contacted'][key]['stdout']}
+        nodeip_list = [node.ip for node in node_list]
+        anscmd = "ansible -o  all  -i %s -a " % ','.join(nodeip_list)
+        cmd = "'docker ps -aq --filter %s '" % "status=exited"
+        cmd = anscmd + cmd + ' -u root'
+
+        res = execute(cmd)
+        docker_failed = None
+
+        if not res['status']:
+            res['output'] = res['output'].split('\n')
+            output = filter(lambda x: not re.match(r'^\s*$', x), res['output'])
+
+            for line in output:
+                line = line.split('|')
+                if len(line) < 3:
+                    continue
+                if 'SUCCESS' not in line[1]:
+                    if docker_failed:
+                        docker_failed = docker_failed + ',' + line[0]
+                    else:
+                        docker_failed = line[0]
+                else:
+                    line[3] = line[3].replace(' ', '')
+                    line[3] = line[3].replace('(stdout)', '')
+                    if not re.match(r'^\s*$', line[3]):
+                        if docker_failed:
+                            docker_failed = docker_failed + ',' + line[0]
+                        else:
+                            docker_failed = line[0]
             if docker_failed:
-                docker_str = " ".join(["Containers failed in %s : %s" % (
-                    key, docker_failed[key]) for key in docker_failed])
-                return (404, docker_str, [])
+                return (404, docker_failed, [])
             else:
                 return (200, "All docker containers are up",
                         ['Docker container Test Passed'])
         else:
             return (404, ("Docker Check Failed: %s" %
-                          results['status_message']), [])
+                          "docker daemon not accessible", []))
 
     @base.scenario(admin_only=False, operator=True)
     def ceph_check(self):
-
         self.load()
-        storage_nodes_from_ansible_config = [node.name.lower(
-        ) for node in self.os_node_info_obj.get_host_list()
-            if node.role == "block_storage"]
+
+        storage_nodes_from_ansible_config = [node.name.lower()
+                                             for node in
+                                             self.os_node_info_obj
+                                             .get_host_list()
+                                             if node.role == "block_storage"]
 
         if storage_nodes_from_ansible_config:
             cmd = (r"ceph -f json status")
             is_containerized = cfg.CONF.operator_test.containerized
             if is_containerized:
-                ceph_container = cfg.CONF.operator_test.ceph_container
-                cmd = ("docker exec %s %s" % (ceph_container, cmd))
+                ceph_container = get_container_name("ceph")
+                cmd = ("'docker exec %s %s'" % (ceph_container, cmd))
+            anscmd = "ansible -o all  -i 127.0.0.1, -a "
+            cmd = anscmd + cmd + ' -u root'
 
-            out = self.ans_runner.execute(cmd, roles=['controller'])
-            results, failed_hosts = self.ans_runner.validate_results(out)
+            res = execute(cmd)
+            if not res['status']:
+                ceph_status = res['output']
 
-            if results['status'] is 'PASS':
-                ceph_status = results['contacted'][
-                    results['contacted'].keys()[0]]['stdout']
-                ceph_status_string = ceph_status.replace('\n', '')
-                ceph_json = json.loads(ceph_status_string)
+                ceph_status = ceph_status.replace('\n', '')
+                ceph_data = ceph_status.split('|')
+                ceph_str = ceph_data[3].replace(' (stdout) ', '') \
+                    .replace('\\n', '')
+                ceph_json = simplejson.loads(ceph_str)
                 overall_status = ceph_json['health']['overall_status']
                 num_of_osd = ceph_json['osdmap']['osdmap']['num_osds']
                 num_up_osds = ceph_json['osdmap']['osdmap']['num_up_osds']
                 if overall_status == 'HEALTH_OK':
                     return (200, "Overall Status = %s, "
-                            "Cluster status = %s/%s" %
+                                 "Cluster status = %s/%s" %
                             (overall_status, num_up_osds, num_of_osd))
                 else:
                     return (404, "Overall Status = %s, "
-                            "Cluster status = %s/%s" %
+                                 "Cluster status = %s/%s" %
                             (overall_status, num_up_osds, num_of_osd))
-        else:
-            return (300, ("Ceph cluster test skipped "
-                          "as no dedicated storage found"))
+            else:
+                return (300, ("Ceph cluster test skipped "
+                              "as no dedicated storage found"))
 
     @base.scenario(admin_only=False, operator=True)
     def node_check(self):
+        failed_hosts = None
         self.load()
-        nodes_from_ansible_config = [node.name.lower(
-        ) for node in self.os_node_info_obj.get_host_list()
-            if node.role == "compute"]
+        nodes_from_ansible_config = [node.name.lower()
+                                     for node in
+                                     self.os_node_info_obj.get_host_list()
+                                     if node.role == "compute"]
         nova_hypervisor_list = self._get_nova_hypervior_list()
         if nova_hypervisor_list[0] != 200:
             return (404, ("Cannot get hypervisor list from "
@@ -254,11 +322,19 @@ class operator_scenario(base.Scenario):
             return (404, ("Hypervisors in nova hypervisor list are less"
                           " than configured.nova hypervisor list = %s") %
                     nodes_from_nova)
-        out = self.ans_runner.ping()
-        results, failed_hosts = self.ans_runner.validate_results(out)
-        if results['status'] is 'PASS':
+
+        anscmd = ("ansible -o all  -i '%s' -m ping -u root" %
+                  ','.join(nova_hypervisor_list[2]))
+        res = execute(anscmd)
+        res['output'] = res['output'].split('\n')
+        output = filter(lambda x: not re.match(r'^\s*$', x), res['output'])
+        for line in output:
+            if "SUCCESS" not in line:
+                failed_hosts = failed_hosts + line.split('|')[0]
+
+        if not res['status']:
             return (200, "All nodes are up.nova hypervisor list = %s" %
-                         nodes_from_nova)
+                    nodes_from_nova)
         else:
             msg = "Some nodes are not up"
             if failed_hosts:
