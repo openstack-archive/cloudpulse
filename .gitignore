@@ -51,3 +51,9 @@ ChangeLog
 *~
 .*.swp
 .*sw?
+.idea/cloudpulse.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/inspectionProfiles/profiles_settings.xml
