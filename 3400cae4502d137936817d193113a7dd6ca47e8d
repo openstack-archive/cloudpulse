@@ -1,0 +1,8 @@
+Code-Review+2: Vinod Pandarinathan <vpandari@cisco.com>
+Workflow+1: Vinod Pandarinathan <vpandari@cisco.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 20 Feb 2017 22:04:57 +0000
+Reviewed-on: https://review.openstack.org/436214
+Project: openstack/cloudpulse
+Branch: refs/heads/stable/newton
