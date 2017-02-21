@@ -20,9 +20,9 @@ Helpers for comparing version strings.
 import copy
 import functools
 import inspect
-import logging
 
 from oslo_config import cfg
+from oslo_log import log as logging
 import pkg_resources
 import six
 

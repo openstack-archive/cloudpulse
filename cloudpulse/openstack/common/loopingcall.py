@@ -15,12 +15,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import logging
 import sys
 import time
 
 from eventlet import event
 from eventlet import greenthread
+from oslo_log import log as logging
 
 from cloudpulse.openstack.common._i18n import _LE, _LW
 

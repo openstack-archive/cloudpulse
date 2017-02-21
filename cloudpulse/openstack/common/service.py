@@ -19,7 +19,6 @@
 
 import errno
 import io
-import logging
 import os
 import random
 import signal
@@ -29,6 +28,7 @@ import time
 import eventlet
 from eventlet import event
 from oslo_config import cfg
+from oslo_log import log as logging
 
 from cloudpulse.openstack.common import eventlet_backdoor
 from cloudpulse.openstack.common._i18n import _LE, _LI, _LW
