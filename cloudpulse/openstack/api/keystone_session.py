@@ -34,10 +34,10 @@ def _get_kssession():
     elif cfg.CONF.keystone_authtoken.auth_uri[-1:] == '3':
         client = v3_client
         kwargs['project_name'] = cfg.CONF.keystone_authtoken.project_name
-        kwargs['user_domain_id'] = cfg.CONF.keystone_authtoken.user_domain_id
-        kwargs[
-            'project_domain_id'] = (cfg.CONF.keystone_authtoken.
-                                    project_domain_id)
+        kwargs['user_domain_name'] = \
+            cfg.CONF.keystone_authtoken.user_domain_name
+        kwargs['project_domain_name'] = \
+            cfg.CONF.keystone_authtoken.project_domain_name
     else:
         raise Exception('Unknown keystone version!')
 
