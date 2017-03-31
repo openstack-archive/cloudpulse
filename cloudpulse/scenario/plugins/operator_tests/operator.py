@@ -11,6 +11,7 @@
 # under the License.
 
 from __future__ import print_function
+from cloudpulse.openstack.api import keystone_session
 from cloudpulse.openstack.api.nova_api import NovaHealth
 from cloudpulse.operator.ansible.openstack_node_info_reader import \
     openstack_node_info_reader
@@ -115,15 +116,16 @@ def get_container_name(name):
 
 
 class operator_scenario(base.Scenario):
+
+    def _get_keystone_session_creds(self):
+        creds = {'session': keystone_session._get_kssession(),
+                 'endpoint_type': 'internalURL'
+                 }
+        return creds
+
     def _get_nova_hypervior_list(self):
         importutils.import_module('keystonemiddleware.auth_token')
-        creds = {}
-        creds['username'] = cfg.CONF.keystone_authtoken.username
-        creds['project_id'] = cfg.CONF.keystone_authtoken.project_name
-        creds['api_key'] = cfg.CONF.keystone_authtoken.password
-        creds['auth_url'] = cfg.CONF.keystone_authtoken.auth_uri
-        creds['cacert'] = cfg.CONF.keystone_authtoken.cafile
-        creds['endpoint_type'] = 'internalURL'
+        creds = self._get_keystone_session_creds()
         nova = NovaHealth(creds)
         return nova.nova_hypervisor_list()
 
@@ -293,8 +295,8 @@ class operator_scenario(base.Scenario):
                     return (404, "Overall Status = %s, "
                                  "Cluster status = %s/%s" %
                             (overall_status, num_up_osds, num_of_osd))
-            else:
-                return (300, ("Ceph cluster test skipped "
+        else:
+            return (300, ("Ceph cluster test skipped "
                               "as no dedicated storage found"))
 
     @base.scenario(admin_only=False, operator=True)
