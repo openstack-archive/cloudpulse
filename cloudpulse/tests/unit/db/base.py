@@ -89,8 +89,6 @@ class DbTestCase(base.TestCase):
 
         global _DB_CACHE
         if not _DB_CACHE:
-            _DB_CACHE = Database(sqla_api,
-                                 sql_connection=CONF.database.connection,
-                                 sqlite_db=CONF.database.sqlite_db,
-                                 sqlite_clean_db='clean.sqlite')
+            _DB_CACHE = Database(sqla_api, None,
+                                 sql_connection=CONF.database.connection)
         self.useFixture(_DB_CACHE)
