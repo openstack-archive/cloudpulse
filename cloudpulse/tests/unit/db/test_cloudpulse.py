@@ -21,6 +21,7 @@ from cloudpulse.tests.unit.db import utils
 
 
 class TestCloudpulseDB(base.DbTestCase):
+    pass
     def test_cloudpulse_db(self):
         utils.create_cpulse_test()
 
