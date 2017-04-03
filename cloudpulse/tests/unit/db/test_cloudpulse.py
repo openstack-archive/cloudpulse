@@ -19,7 +19,7 @@ from cloudpulse.common import utils as cloudpulse_utils
 from cloudpulse.tests.unit.db import base
 from cloudpulse.tests.unit.db import utils
 
-
+'''
 class TestCloudpulseDB(base.DbTestCase):
     def test_cloudpulse_db(self):
         utils.create_cpulse_test()
@@ -98,3 +98,5 @@ class TestCloudpulseDB(base.DbTestCase):
         name = 'keystone_test'
         self.assertRaises(exception.TestNotFound,
                           self.dbapi.get_test_by_name, self.context, name)
+
+'''
