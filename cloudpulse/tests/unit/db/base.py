@@ -15,13 +15,9 @@
 
 """Magnum DB test base class."""
 
-import os
-import shutil
-
 import fixtures
 from oslo_config import cfg
 
-from cloudpulse.common import paths
 from cloudpulse.db import api as dbapi
 from cloudpulse.db.sqlalchemy import api as sqla_api
 from cloudpulse.db.sqlalchemy import models
@@ -37,11 +33,8 @@ _DB_CACHE = None
 
 class Database(fixtures.Fixture):
 
-    def __init__(self, db_api, sql_connection,
-                 sqlite_db, sqlite_clean_db):
+    def __init__(self, db_api, sql_connection):
         self.sql_connection = sql_connection
-        self.sqlite_db = sqlite_db
-        self.sqlite_clean_db = sqlite_clean_db
 
         self.engine = db_api.get_engine()
         self.engine.dispose()
@@ -49,16 +42,12 @@ class Database(fixtures.Fixture):
         if sql_connection == "sqlite://":
             self.setup_sqlite()
         elif sql_connection.startswith('sqlite:///'):
-            testdb = paths.state_path_rel(sqlite_db)
             self.setup_sqlite()
         self.post_migrations()
         if sql_connection == "sqlite://":
             conn = self.engine.connect()
             self._DB = "".join(line for line in conn.connection.iterdump())
             self.engine.dispose()
-        else:
-            cleandb = paths.state_path_rel(sqlite_clean_db)
-            shutil.copyfile(testdb, cleandb)
 
     def setup_sqlite(self):
         models.Base.metadata.create_all(self.engine)
@@ -70,10 +59,6 @@ class Database(fixtures.Fixture):
             conn = self.engine.connect()
             conn.connection.executescript(self._DB)
             self.addCleanup(self.engine.dispose)
-        else:
-            shutil.copyfile(paths.state_path_rel(self.sqlite_clean_db),
-                            paths.state_path_rel(self.sqlite_db))
-            self.addCleanup(os.unlink, paths.state_path_rel(self.sqlite_db))
 
     def post_migrations(self):
         """Any addition steps that are needed outside of the migrations."""
@@ -90,7 +75,5 @@ class DbTestCase(base.TestCase):
         global _DB_CACHE
         if not _DB_CACHE:
             _DB_CACHE = Database(sqla_api,
-                                 sql_connection=CONF.database.connection,
-                                 sqlite_db=CONF.database.sqlite_db,
-                                 sqlite_clean_db='clean.sqlite')
+                                 sql_connection=CONF.database.connection)
         self.useFixture(_DB_CACHE)
