@@ -264,7 +264,8 @@ class operator_scenario(base.Scenario):
                                              for node in
                                              self.os_node_info_obj
                                              .get_host_list()
-                                             if node.role == "block_storage"]
+                                             if "block_storage" in
+                                             node.role.split()]
 
         if storage_nodes_from_ansible_config:
             cmd = (r"ceph -f json status")
@@ -306,7 +307,7 @@ class operator_scenario(base.Scenario):
         nodes_from_ansible_config = [node.name.lower()
                                      for node in
                                      self.os_node_info_obj.get_host_list()
-                                     if node.role == "compute"]
+                                     if "compute" in node.role.split()]
         nova_hypervisor_list = self._get_nova_hypervior_list()
         if nova_hypervisor_list[0] != 200:
             return (404, ("Cannot get hypervisor list from "
