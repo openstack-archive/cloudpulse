@@ -48,7 +48,7 @@ _DEFAULT_SQL_CONNECTION = ('sqlite:///' +
                            paths.state_path_def('cloudpulse.sqlite'))
 
 cfg.CONF.register_opts(sql_opts, 'database')
-db_options.set_defaults(cfg.CONF, _DEFAULT_SQL_CONNECTION, 'cloudpulse.sqlite')
+db_options.set_defaults(cfg.CONF, connection=_DEFAULT_SQL_CONNECTION)
 
 
 def table_args():
