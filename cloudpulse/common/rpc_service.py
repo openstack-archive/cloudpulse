@@ -68,8 +68,8 @@ class Service(object):
     def __init__(self, topic, server, handlers):
         serializer = RequestContextSerializer(
             objects_base.CloudpulseObjectSerializer())
-        transport = messaging.get_transport(cfg.CONF,
-                                            aliases=TRANSPORT_ALIASES)
+        transport = messaging.get_rpc_transport(cfg.CONF,
+                                                aliases=TRANSPORT_ALIASES)
         # TODO(asalkeld) add support for version='x.y'
         target = messaging.Target(topic=topic, server=server)
         self._server = messaging.get_rpc_server(transport, target, handlers,
@@ -87,9 +87,8 @@ class API(object):
             objects_base.CloudpulseObjectSerializer())
         if transport is None:
             exmods = rpc.get_allowed_exmods()
-            transport = messaging.get_transport(cfg.CONF,
-                                                allowed_remote_exmods=exmods,
-                                                aliases=TRANSPORT_ALIASES)
+            transport = messaging.get_rpc_transport(
+                cfg.CONF, allowed_remote_exmods=exmods)
         self._context = context
         if topic is None:
             topic = ''
