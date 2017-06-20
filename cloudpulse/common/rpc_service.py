@@ -21,6 +21,7 @@ import oslo_messaging as messaging
 from cloudpulse.common import context as cloudpulse_context
 from cloudpulse.common import rpc
 from cloudpulse.objects import base as objects_base
+from oslo_messaging.rpc import dispatcher
 
 
 # NOTE(paulczar):
@@ -72,8 +73,10 @@ class Service(object):
                                                 aliases=TRANSPORT_ALIASES)
         # TODO(asalkeld) add support for version='x.y'
         target = messaging.Target(topic=topic, server=server)
+        access_policy = dispatcher.DefaultRPCAccessPolicy
         self._server = messaging.get_rpc_server(transport, target, handlers,
-                                                serializer=serializer)
+                                                serializer=serializer,
+                                                access_policy=access_policy)
 
     def serve(self):
         self._server.start()
