@@ -95,12 +95,38 @@ class TestCpulseObject(base.DbTestCase):
             self.assertEqual(self.context, cpulse[0]._context)
 
     def test_cpulse_create(self):
+
+
+        def compare(self, other):
+            """Overload compare """
+
+            if type(self) != type(other):
+                return False
+            if self['name'] != other['name']:
+                return False
+            if self['uuid'] != other['uuid']:
+                return False
+            return True
+
+        class Matcher(object):
+            """Matcher class """
+
+            def __init__(self, compare, exp):
+                self.compare = compare
+                self.exp = exp
+
+            def __eq__(self, other):
+                return self.compare(self.exp, other)
+
+
         with mock.patch.object(self.dbapi, 'create_test',
                                autospec=True) as mock_create_test:
             mock_create_test.return_value = self.cpulsetest
+
             cpulse = objects.Cpulse(self.context, **self.cpulsetest)
             cpulse.create()
-            mock_create_test.assert_called_once_with(self.cpulsetest)
+            mock_create_test.assert_called_once_with(Matcher(compare,
+                                                             self.cpulsetest))
             self.assertEqual(self.context, cpulse._context)
 
     def test_cpulse_destroy(self):
