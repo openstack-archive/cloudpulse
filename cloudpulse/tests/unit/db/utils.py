@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 from cloudpulse.db import api as db_api
 
 
@@ -24,8 +25,8 @@ def get_cpulse_test(**kw):
         'state': kw.get('state', 'scheduled'),
         'result': kw.get('state', 'success'),
         'testtype': kw.get('testtype', 'periodic'),
-        'created_at': kw.get('created_at'),
-        'updated_at': kw.get('updated_at'),
+        'created_at': kw.get('created_at', datetime.datetime.utcnow()),
+        'updated_at': kw.get('updated_at', datetime.datetime.utcnow()),
     }
 
 
