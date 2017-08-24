@@ -100,6 +100,8 @@ class TestCpulseObject(base.DbTestCase):
             mock_create_test.return_value = self.cpulsetest
             cpulse = objects.Cpulse(self.context, **self.cpulsetest)
             cpulse.create()
+            del self.cpulsetest['created_at']
+            del self.cpulsetest['updated_at']
             mock_create_test.assert_called_once_with(self.cpulsetest)
             self.assertEqual(self.context, cpulse._context)
 

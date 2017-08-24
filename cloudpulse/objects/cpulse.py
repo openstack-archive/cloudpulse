@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import datetime
 from oslo_versionedobjects import fields
 
 from cloudpulse.common import exception
@@ -148,6 +149,8 @@ class Cpulse(base.CloudpulsePersistentObject, base.CloudpulseObject,
 
         """
         values = self.obj_get_changes()
+        values['created_at'] = datetime.datetime.utcnow()
+        values['updated_at'] = values['created_at']
         LOG.info(_LI('Dumping CREATE test datastructure  %s') % str(values))
         db = self.dbapi.create_test(values)
         self._from_db_object(self, db)
