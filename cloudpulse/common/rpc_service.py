@@ -30,15 +30,6 @@ from cloudpulse.objects import base as objects_base
 # to use libamqp instead.
 eventlet.monkey_patch()
 
-# NOTE(asalkeld):
-# The cloudpulse.openstack.common.rpc entries are for compatibility
-# with devstack rpc_backend configuration values.
-TRANSPORT_ALIASES = {
-    'cloudpulse.openstack.common.rpc.impl_kombu': 'rabbit',
-    'cloudpulse.openstack.common.rpc.impl_qpid': 'qpid',
-    'cloudpulse.openstack.common.rpc.impl_zmq': 'zmq',
-}
-
 
 class RequestContextSerializer(messaging.Serializer):
 
@@ -68,8 +59,7 @@ class Service(object):
     def __init__(self, topic, server, handlers):
         serializer = RequestContextSerializer(
             objects_base.CloudpulseObjectSerializer())
-        transport = messaging.get_rpc_transport(cfg.CONF,
-                                                aliases=TRANSPORT_ALIASES)
+        transport = messaging.get_rpc_transport(cfg.CONF)
         # TODO(asalkeld) add support for version='x.y'
         target = messaging.Target(topic=topic, server=server)
         access_policy = dispatcher.DefaultRPCAccessPolicy
