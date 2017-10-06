@@ -14,8 +14,8 @@
 
 import copy
 
-import keystoneclient.exceptions as kc_exception
-from keystoneclient.v3 import client as kc_v3
+import keystoneauth1 as kc_exception
+from keystoneauth1.v3 import client as kc_v3
 from oslo_config import cfg
 from oslo_utils import importutils
 
@@ -169,7 +169,6 @@ class KeystoneClientV3(object):
             return self.context
 
         # We need the service admin user ID (not name), as the trustor user
-        # can't lookup the ID in keystoneclient unless they're admin
         # workaround this by getting the user_id from admin_client
         trustee_user_id = self.admin_client.auth_ref.user_id
         trustor_user_id = self.client.auth_ref.user_id
