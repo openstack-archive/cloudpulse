@@ -37,9 +37,9 @@ import os
 import socket
 import sys
 import traceback
+import ujson
 
 from oslo_config import cfg
-from oslo_serialization import jsonutils
 from oslo_utils import importutils
 import six
 from six import moves
@@ -389,7 +389,7 @@ class JSONFormatter(logging.Formatter):
         if record.exc_info:
             message['traceback'] = self.formatException(record.exc_info)
 
-        return jsonutils.dumps(message)
+        return ujson.dumps(message)
 
 
 def _create_logging_excepthook(product_name):
