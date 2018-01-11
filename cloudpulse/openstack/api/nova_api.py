@@ -24,7 +24,8 @@ class NovaHealth(object):
             hypervisors = self.novaclient.hypervisors.list()
         except (ClientException, Exception) as e:
             return (400, e.message, [])
-        hypervisor_names = [node.hypervisor_hostname for node in hypervisors]
+        hypervisor_names = [node.hypervisor_hostname for node in hypervisors
+                            if node.state == "up"]
         return (200, "success", hypervisor_names)
 
     def nova_service_list(self):
