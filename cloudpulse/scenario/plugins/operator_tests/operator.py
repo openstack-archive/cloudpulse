@@ -220,7 +220,8 @@ class operator_scenario(base.Scenario):
 
         nodeip_list = [node.ip for node in node_list]
         anscmd = "ansible -o  all  -i %s -a " % ','.join(nodeip_list)
-        cmd = "'docker ps -aq --filter %s '" % "status=exited"
+        cmd = "'docker ps -a  --format \{\{.Names\}\} --filter %s '" \
+              % "status=exited"
         cmd = anscmd + cmd + ' -u root'
 
         res = execute(cmd)
@@ -236,7 +237,7 @@ class operator_scenario(base.Scenario):
                     continue
                 if 'SUCCESS' not in line[1]:
                     if docker_failed:
-                        docker_failed = docker_failed + ',' + line[0]
+                        docker_failed = "{}, {}".format(docker_failed, line[0])
                     else:
                         docker_failed = line[0]
                 else:
@@ -244,9 +245,13 @@ class operator_scenario(base.Scenario):
                     line[3] = line[3].replace('(stdout)', '')
                     if not re.match(r'^\s*$', line[3]):
                         if docker_failed:
-                            docker_failed = docker_failed + ',' + line[0]
+                            docker_failed = "{}, {}: {}"\
+                                .format(docker_failed,
+                                        line[0].strip(),
+                                        line[3])
                         else:
-                            docker_failed = line[0]
+                            docker_failed = "{}: {}".format(line[0].strip(),
+                                                            line[3])
             if docker_failed:
                 return (404, docker_failed, [])
             else:
