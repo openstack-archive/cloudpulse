@@ -244,14 +244,15 @@ class operator_scenario(base.Scenario):
                     line[3] = line[3].replace(' ', '')
                     line[3] = line[3].replace('(stdout)', '')
                     if not re.match(r'^\s*$', line[3]):
+                        line[3] = line[3].replace('\\n', ', ')
                         if docker_failed:
-                            docker_failed = "{}, {}: {}"\
+                            docker_failed = "{}; {}: {}"\
                                 .format(docker_failed,
                                         line[0].strip(),
-                                        line[3])
+                                        line[3].strip())
                         else:
                             docker_failed = "{}: {}".format(line[0].strip(),
-                                                            line[3])
+                                                            line[3].strip())
             if docker_failed:
                 return (404, docker_failed, [])
             else:
