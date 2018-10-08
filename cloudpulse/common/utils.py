@@ -348,7 +348,7 @@ def temporary_mutation(obj, **kwargs):
             do_something_that_needed_deleted_objects()
     """
     def is_dict_like(thing):
-        return hasattr(thing, 'has_key')
+        return isinstance(thing, dict)
 
     def get(thing, attr, default):
         if is_dict_like(thing):
