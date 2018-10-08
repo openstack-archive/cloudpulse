@@ -16,6 +16,7 @@ from cloudpulse import objects
 import contextlib
 from oslo_log import log as logging
 from oslo_utils import excutils
+from six.moves import xrange
 import time
 
 LOG = logging.getLogger(__name__)
