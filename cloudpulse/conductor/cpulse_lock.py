@@ -28,7 +28,7 @@ class CpulseLock(object):
         self.conductor_id = conductor_id
 
     def acquire(self, retry=True, times=10):
-        for num in xrange(0, times):
+        for num in range(0, times):
             lock_id = objects.CpulseLock.create(self.cpulse_test.name,
                                                 self.conductor_id)
             if lock_id is None:
