@@ -277,7 +277,7 @@ class operator_scenario(base.Scenario):
             cmd = (r"ceph -f json status")
             is_containerized = cfg.CONF.operator_test.containerized
             if is_containerized:
-                ceph_container = get_container_name("ceph")
+                ceph_container = get_container_name("cephmon")
                 cmd = ("'docker exec %s %s'" % (ceph_container, cmd))
             anscmd = "ansible -o all  -i 127.0.0.1, -a "
             cmd = anscmd + cmd + ' -u root'

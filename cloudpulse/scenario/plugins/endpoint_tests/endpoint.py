@@ -44,12 +44,23 @@ TESTS_OPTS = [
                help='Run all endpoint tests in interval')
 ]
 
+POD_TESTS_OPTS = [
+    cfg.StrOpt('podtype',
+               default='',
+               help='Mgmt PODTYPE')
+]
+
 CONF = cfg.CONF
 
 periodic_test_group = cfg.OptGroup(name='periodic_tests',
                                    title='Periodic tests to be run')
 CONF.register_group(periodic_test_group)
 CONF.register_opts(TESTS_OPTS, periodic_test_group)
+
+pod_type_test_group = cfg.OptGroup(name='pod_type',
+                                   title='Mgmt POD Type')
+CONF.register_group(pod_type_test_group)
+CONF.register_opts(POD_TESTS_OPTS, pod_type_test_group)
 
 
 class endpoint_scenario(base.Scenario):
@@ -88,6 +99,10 @@ class endpoint_scenario(base.Scenario):
 
     @base.scenario(admin_only=False, operator=False)
     def cinder_endpoint(self, *args, **kwargs):
+        podtype = cfg.CONF.pod_type.podtype
+        if podtype.lower() == "edge":
+            skip_msg = "cinder_endpoint test not supported for PODTYPE: edge"
+            return (300, skip_msg, [])
         creds = self._get_keystone_session_creds()
         cinder = CinderHealth(creds)
         return cinder.cinder_list()
