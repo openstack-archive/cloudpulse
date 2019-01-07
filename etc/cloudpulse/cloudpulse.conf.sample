@@ -211,7 +211,7 @@ enabled = True
 
 # This option is used to give the credentials of the operator who is
 # goinig to run the operator tests in the cloudpulse.  This option is
-# meant for the operators and will not be availble for tenants.
+# meant for the operators and will not be available for tenants.
 
 
 [oslo_messaging_rabbit]
