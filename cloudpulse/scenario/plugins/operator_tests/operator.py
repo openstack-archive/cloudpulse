@@ -291,7 +291,16 @@ class operator_scenario(base.Scenario):
                 ceph_str = ceph_data[3].replace(' (stdout) ', '') \
                     .replace('\\n', '')
                 ceph_json = simplejson.loads(ceph_str)
-                overall_status = ceph_json['health']['overall_status']
+
+                # Handle ceph status in luminous, result should be picked form
+                # 'status' instead of 'overall_status'
+                if len(ceph_json['health']['summary']) and \
+                        'summary' in ceph_json['health']['summary'][0].keys() \
+                        and 'mon health preluminous compat warning' in \
+                        ceph_json['health']['summary'][0]['summary']:
+                    overall_status = ceph_json['health']['status']
+                else:
+                    overall_status = ceph_json['health']['overall_status']
                 num_of_osd = ceph_json['osdmap']['osdmap']['num_osds']
                 num_up_osds = ceph_json['osdmap']['osdmap']['num_up_osds']
                 if overall_status == 'HEALTH_OK':
