@@ -1,0 +1,10 @@
+Code-Review+1: Filippo Inzaghi <zhao.daqing@99cloud.net>
+Code-Review+1: Vieri <15050873171@163.com>
+Code-Review+2: Vinod Pandarinathan <vpandari@cisco.com>
+Workflow+1: Vinod Pandarinathan <vpandari@cisco.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 22 Jan 2019 06:38:32 +0000
+Reviewed-on: https://review.openstack.org/573730
+Project: openstack/cloudpulse
+Branch: refs/heads/master
