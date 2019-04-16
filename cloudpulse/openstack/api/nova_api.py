@@ -25,7 +25,8 @@ class NovaHealth(object):
         except (ClientException, Exception) as e:
             return (400, e.message, [])
         hypervisor_names = [node.hypervisor_hostname for node in hypervisors
-                            if node.state == "up"]
+                            if node.state == "up" and \
+                                node.hypervisor_type == 'QEMU']
         return (200, "success", hypervisor_names)
 
     def nova_service_list(self):
