@@ -1,0 +1,8 @@
+Code-Review+2: Vinod Pandarinathan <vpandari@cisco.com>
+Workflow+1: Vinod Pandarinathan <vpandari@cisco.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 17 Apr 2019 18:54:41 +0000
+Reviewed-on: https://review.openstack.org/653415
+Project: openstack/cloudpulse
+Branch: refs/heads/stable/queens
